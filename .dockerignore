@@ -1,10 +1,69 @@
+# Dependencies
 node_modules
+.pnp
+.pnp.js
+
+# Build output
+dist
+
+# Git
 .git
 .gitignore
+.gitattributes
+
+# Environment files (secrets - never include in image)
 .env
 .env.*
+!.env.example
+
+# Documentation (not needed in container)
 *.md
+!README.md
+docs/
+CLAUDE.md
+
+# IDE and editors
+.vscode
+.idea
+*.swp
+*.swo
+*~
+.DS_Store
+
+# Tests
 tests
-bunfig.toml
+*.test.ts
+*.spec.ts
+coverage
+.nyc_output
+
+# CI/CD
 .github
+.gitlab-ci.yml
+.travis.yml
+
+# Development files
+bunfig.toml
 scripts
+*.log
+npm-debug.log*
+
+# Docker (prevent recursive copy)
+Dockerfile*
+docker-compose*.yml
+.docker
+
+# Deployment scripts (managed separately)
+config-generated
+add.sh
+upgrade.sh
+remove.sh
+status.sh
+versions.sh
+setup-scripts
+
+# Misc
+*.tgz
+*.tar.gz
+.cache
+.turbo

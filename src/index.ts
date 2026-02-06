@@ -1,48 +1,79 @@
-import { Hono } from "hono";
-import { cors } from "hono/cors";
-import { logger } from "hono/logger";
-import { initDatabase } from "./db";
-import routes from "./routes";
-import { successResponse } from "@sudobility/sudojo_types";
-import { getEnv } from "./lib/env-helper";
+/**
+ * Entry point for Sudoku Hint Bot
+ * Sets up restify HTTP server for Bot Framework
+ */
 
-const app = new Hono();
+import {
+  CloudAdapter,
+  ConfigurationBotFrameworkAuthentication,
+  MemoryStorage,
+  ConversationState,
+  UserState,
+} from 'botbuilder';
+import restify from 'restify';
+import { SudokuHintBot } from './bot.js';
+import { MainDialog } from './dialogs/mainDialog.js';
+import { OCRService } from './services/ocrService.js';
+import { SolverService } from './services/solverService.js';
 
-// Middleware
-app.use("*", logger());
-app.use("*", cors());
+// Load environment variables
+const PORT = process.env.PORT || 3978;
+const SOLVER_API_URL = process.env.SOLVER_API_URL || 'http://localhost:3000';
 
-// Health check endpoints
-const healthResponse = {
-  name: "Sudojo API",
-  version: "1.0.0",
-  status: "healthy",
+// Create HTTP server
+const server = restify.createServer();
+server.use(restify.plugins.bodyParser());
+
+// Bot Framework authentication
+const botFrameworkAuth = new ConfigurationBotFrameworkAuthentication({
+  MicrosoftAppId: process.env.MICROSOFT_APP_ID,
+  MicrosoftAppPassword: process.env.MICROSOFT_APP_PASSWORD,
+  MicrosoftAppType: process.env.MICROSOFT_APP_TYPE || 'MultiTenant',
+});
+
+// Create adapter
+const adapter = new CloudAdapter(botFrameworkAuth);
+
+// Error handler
+adapter.onTurnError = async (context, error) => {
+  console.error(`[onTurnError] unhandled error: ${error}`);
+  console.error(error.stack);
+
+  // Send error message to user
+  await context.sendActivity('Sorry, something went wrong. Please try again.');
+
+  // Clear conversation state on error
+  await conversationState.delete(context);
 };
 
-app.get("/", c => c.json(successResponse(healthResponse)));
-app.get("/health", c => c.json(successResponse(healthResponse)));
+// Storage and state
+const storage = new MemoryStorage();
+const conversationState = new ConversationState(storage);
+const userState = new UserState(storage);
 
-// API routes
-app.route("/api/v1", routes);
+// Services
+const ocrService = new OCRService();
+const solverService = new SolverService(SOLVER_API_URL);
 
-// Initialize database and start server
-const port = parseInt(getEnv("PORT", "3000")!);
+// Main dialog
+const mainDialog = new MainDialog(ocrService, solverService);
 
-initDatabase()
-  .then(() => {
-    console.log(`Server running on http://localhost:${port}`);
-  })
-  .catch(err => {
-    console.error("Failed to initialize database:", err);
-    process.exit(1);
-  });
+// Create bot
+const bot = new SudokuHintBot(conversationState, userState, mainDialog);
 
-export default {
-  port,
-  fetch: app.fetch,
-  // Increase idle timeout for long-running requests like /validate (default is 10s)
-  idleTimeout: 120, // 2 minutes
-};
+// Listen for incoming requests
+server.post('/api/messages', async (req, res) => {
+  await adapter.process(req, res, context => bot.run(context));
+});
 
-// Export app for testing
-export { app };
+// Health check endpoint
+server.get('/health', (_req, res, next) => {
+  res.send(200, { status: 'healthy', name: 'Sudoku Hint Bot' });
+  next();
+});
+
+// Start server
+server.listen(PORT, () => {
+  console.log(`Sudoku Hint Bot listening on http://localhost:${PORT}`);
+  console.log(`Bot endpoint: http://localhost:${PORT}/api/messages`);
+});

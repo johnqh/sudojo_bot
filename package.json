@@ -1,49 +1,38 @@
 {
-  "name": "sudojo_api",
-  "version": "1.0.76",
-  "module": "src/index.ts",
+  "name": "sudojo_bot",
+  "version": "1.0.0",
+  "description": "Microsoft Bot Framework bot for Sudoku hints",
+  "main": "dist/index.js",
   "type": "module",
   "private": true,
   "license": "BUSL-1.1",
   "scripts": {
     "dev": "bun run --watch src/index.ts",
     "start": "bun run src/index.ts",
-    "build": "bun build src/index.ts --outdir dist --target bun",
-    "build:compile": "bun build src/index.ts --compile --outfile dist/server",
+    "build": "tsc",
     "clean": "rm -rf dist",
-    "test": "vitest run tests/unit",
-    "test:unit": "vitest run tests/unit",
-    "test:integration": "bun test --preload ./tests/setup.ts tests/levels tests/boards tests/techniques tests/learning tests/dailies tests/challenges tests/auth tests/solver",
-    "lint": "eslint src",
     "typecheck": "tsc --noEmit",
-    "format": "prettier --write src",
-    "format:check": "prettier --check src",
-    "db:init": "bun run src/db/init.ts",
-    "db:seed-badges": "bun run src/db/seed-badges.ts"
-  },
-  "devDependencies": {
-    "vitest": "^4.0.4",
-    "@types/bun": "latest",
-    "@types/node": "^24.10.1",
-    "@typescript-eslint/eslint-plugin": "^8.50.0",
-    "@typescript-eslint/parser": "^8.50.0",
-    "drizzle-kit": "^0.31.8",
-    "eslint": "^9.39.2",
-    "eslint-plugin-import": "^2.32.0",
-    "prettier": "^3.7.4",
-    "typescript": "^5.9.3"
+    "lint": "eslint src",
+    "format": "prettier --write src"
   },
   "dependencies": {
-    "@hono/zod-validator": "^0.7.5",
-    "@sudobility/auth_service": "^1.1.3",
-    "@sudobility/ratelimit_service": "^1.0.19",
-    "@sudobility/subscription_service": "^1.0.2",
+    "botbuilder": "^4.23.1",
+    "botbuilder-dialogs": "^4.23.1",
+    "restify": "^11.1.0",
+    "@sudobility/sudojo_ocr": "^1.0.1",
     "@sudobility/sudojo_types": "^1.2.26",
     "@sudobility/types": "^1.9.50",
-    "drizzle-orm": "^0.45.0",
-    "firebase-admin": "^13.6.0",
-    "hono": "^4.10.7",
-    "postgres": "^3.4.7",
-    "zod": "^4.1.13"
+    "@napi-rs/canvas": "^0.1.68",
+    "tesseract.js": "^5.1.1"
+  },
+  "devDependencies": {
+    "@types/bun": "latest",
+    "@types/node": "^22.10.0",
+    "@types/restify": "^8.5.12",
+    "eslint": "^9.39.2",
+    "globals": "^17.3.0",
+    "prettier": "^3.8.1",
+    "typescript": "^5.7.2",
+    "typescript-eslint": "^8.54.0"
   }
 }

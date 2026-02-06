@@ -4,147 +4,248 @@ This file provides context for AI assistants working on this codebase.
 
 ## Project Overview
 
-`sudojo_api` is the backend API server for Sudojo, a Sudoku learning platform. Built with Hono framework running on Bun runtime, it provides REST endpoints for:
-- Daily puzzles and challenges
-- Puzzle levels and difficulty progression
-- Sudoku solving techniques
-- User learning progress tracking
-- Authentication via Firebase
+`sudojo_bot` is a Microsoft Bot Framework application that provides interactive Sudoku puzzle assistance. Users can upload images of Sudoku puzzles, and the bot extracts puzzles via OCR, validates them, and provides step-by-step hints using a solver API.
+
+**Key Capabilities:**
+- Image upload and OCR puzzle extraction
+- Puzzle validation against solver
+- Step-by-step hint navigation with visual board rendering
+- Multi-channel support (Teams, Web Chat, etc.)
 
 ## Runtime & Package Manager
 
-**This project uses Bun exclusively.** Do not use npm, yarn, or pnpm.
+**This project uses Bun.** Do not use npm, yarn, or pnpm.
 
 ```bash
-bun install          # Install dependencies
-bun run dev          # Start dev server with hot reload
-bun run start        # Start production server
-bun run build        # Bundle for production
-bun run build:compile # Create standalone executable
-bun test             # Run tests
-bun run typecheck    # Type-check without emitting
-bun run lint         # Run ESLint
-bun run format       # Format with Prettier
+bun install           # Install dependencies
+bun run dev           # Start with watch mode
+bun run start         # Production start
+bun run build         # TypeScript compilation
+bun run typecheck     # Type checking only
+bun run lint          # ESLint
+bun run format        # Prettier formatting
 ```
 
 ## Tech Stack
 
 - **Runtime**: Bun
-- **Framework**: Hono (fast, lightweight web framework)
-- **Database**: PostgreSQL with Drizzle ORM
-- **Validation**: Zod schemas with @hono/zod-validator
-- **Auth**: Firebase Admin SDK
-- **Types**: @sudobility/sudojo_types, @sudobility/types
+- **Framework**: Microsoft Bot Framework 4.x
+- **HTTP Server**: Restify
+- **Language**: TypeScript (strict mode)
+- **OCR**: Tesseract.js + @sudobility/sudojo_ocr
+- **Rendering**: @napi-rs/canvas (native bindings)
+- **UI**: Adaptive Cards
 
 ## Project Structure
 
 ```
 src/
-├── index.ts           # App entry point, Hono app setup
-├── routes/            # API route handlers
-│   ├── dailies.ts     # Daily puzzle endpoints
-│   ├── levels.ts      # Puzzle level endpoints
-│   ├── boards.ts      # Board/puzzle endpoints
-│   ├── techniques.ts  # Solving technique endpoints
-│   ├── challenges.ts  # Challenge endpoints
-│   └── learning.ts    # Learning progress endpoints
-├── db/                # Database layer
-│   ├── schema.ts      # Drizzle schema definitions
-│   └── init.ts        # Database initialization
-├── middleware/        # Hono middleware
-│   └── auth.ts        # Firebase auth middleware
-├── services/          # Business logic services
-├── schemas/           # Zod validation schemas
-└── lib/               # Utility functions
-tests/                 # Test files (bun:test)
+├── index.ts                 # Entry point - Restify server setup
+├── bot.ts                   # Main bot class (ActivityHandler)
+├── dialogs/                 # Conversation flow management
+│   ├── mainDialog.ts        # Root dialog - orchestrates all interactions
+│   ├── hintDialog.ts        # Hint fetching and navigation
+│   └── puzzleUploadDialog.ts # Image upload and OCR workflow
+├── services/                # Business logic
+│   ├── ocrService.ts        # Tesseract OCR wrapper
+│   ├── solverService.ts     # Solver API client
+│   ├── boardRenderer.ts     # Canvas rendering for boards
+│   └── imageService.ts      # Attachment handling
+├── cards/                   # Adaptive Card templates
+│   ├── welcomeCard.ts       # Welcome message
+│   ├── puzzleCard.ts        # Puzzle display
+│   └── hintCard.ts          # Hint visualization
+└── state/                   # State management
+    └── conversationState.ts # TypeScript interfaces for state
 ```
 
-## API Patterns
+## Key Dependencies
 
-### Route Definition
+### Sudobility Packages
+- `@sudobility/sudojo_ocr` - Sudoku OCR extraction from images
+- `@sudobility/sudojo_types` - Solver types and hint structures
+- `@sudobility/types` - Generic type definitions
+
+### External
+- `botbuilder` / `botbuilder-dialogs` - Microsoft Bot Framework
+- `restify` - HTTP server
+- `@napi-rs/canvas` - Native canvas for image rendering
+- `tesseract.js` - OCR engine
+
+## Architecture
+
+```
+HTTP Request → Restify Server (index.ts)
+                    ↓
+              CloudAdapter (Bot Framework)
+                    ↓
+             SudokuHintBot.run()
+                    ↓
+              MainDialog handles:
+              ├─ Image Upload → ImageService + OCRService
+              ├─ Puzzle Validation → SolverService.validate()
+              ├─ Get Hint → SolverService.solve()
+              ├─ Render Board → BoardRenderer.render()
+              └─ State Management → ConversationState
+```
+
+### Dialog Flow
+
+1. **Welcome**: User joins → Welcome card with instructions
+2. **Upload**: User sends image → OCR extraction → Validation → Confirmation
+3. **Hints**: User requests hint → Solver API → Step-by-step navigation
+4. **Apply**: User applies hint → Update puzzle state → Continue
+
+### State Structure
+
 ```typescript
-import { Hono } from 'hono';
-import { zValidator } from '@hono/zod-validator';
-import { z } from 'zod';
+interface SudokuConversationData {
+  currentPuzzle: PuzzleState | null;  // Active puzzle
+  currentHint: HintState | null;      // Active hint session
+  dialogState: object;                // Bot Framework dialog state
+}
 
-const app = new Hono();
-
-app.get('/items/:id', zValidator('param', z.object({ id: z.string() })), async (c) => {
-  const { id } = c.req.valid('param');
-  // ... handle request
-  return c.json({ data });
-});
-```
-
-### Authentication
-Routes requiring auth use Firebase middleware:
-```typescript
-import { authMiddleware } from '../middleware/auth';
-
-app.use('/protected/*', authMiddleware);
-```
-
-### Database Queries
-Using Drizzle ORM:
-```typescript
-import { db } from '../db';
-import { puzzles } from '../db/schema';
-import { eq } from 'drizzle-orm';
-
-const puzzle = await db.select().from(puzzles).where(eq(puzzles.id, id));
-```
-
-## Testing
-
-Tests use Bun's native test runner:
-
-```typescript
-import { test, expect, describe } from 'bun:test';
-
-describe('Levels API', () => {
-  test('should return levels list', async () => {
-    const response = await app.request('/api/levels');
-    expect(response.status).toBe(200);
-  });
-});
-```
-
-Run tests:
-```bash
-bun test                    # All tests
-bun run test:unit           # Unit tests only
-bun test tests/levels       # Specific test file
+interface PuzzleState {
+  original: string;      // 81-char original puzzle
+  user: string;          // 81-char user input ('0' = empty)
+  solution: string;      // 81-char solution
+  confidence: number;    // OCR confidence (0-1)
+}
 ```
 
 ## Environment Variables
 
-Bun automatically loads `.env` files. Required variables:
-- `DATABASE_URL` - PostgreSQL connection string
-- `FIREBASE_*` - Firebase Admin SDK credentials
+Required variables (see `.env.example`):
 
-## Code Conventions
+```bash
+# Bot Framework (from Azure Bot Registration)
+MICROSOFT_APP_ID=           # Azure Bot app ID
+MICROSOFT_APP_PASSWORD=     # Azure Bot app secret
+MICROSOFT_APP_TYPE=MultiTenant
 
-- Use Zod for all request validation
-- Return consistent response shapes using @sudobility/types
-- Keep route handlers thin; put logic in services
-- Use async/await, not callbacks
-- TypeScript strict mode enabled
+# Solver API
+SOLVER_API_URL=http://localhost:3000  # Sudojo solver endpoint
+
+# Server
+PORT=3978                   # HTTP server port
+```
+
+## API Endpoints
+
+| Endpoint | Method | Description |
+|----------|--------|-------------|
+| `/api/messages` | POST | Bot Framework messaging endpoint |
+| `/health` | GET | Health check (returns 200 OK) |
 
 ## Common Tasks
 
-### Add New Endpoint
-1. Create route file in `src/routes/` or add to existing
-2. Define Zod schemas in `src/schemas/`
-3. Add business logic in `src/services/` if complex
-4. Register route in `src/index.ts`
-5. Add tests in `tests/`
+### Add New Dialog
+1. Create dialog class in `src/dialogs/`
+2. Extend `ComponentDialog`
+3. Register in `MainDialog` with `this.addDialog()`
+4. Add routing logic in `MainDialog.onMessageActivity()`
 
-### Add Database Table
-1. Define schema in `src/db/schema.ts`
-2. Run `bun run db:init` to apply changes
-3. Create corresponding types if needed
+### Add New Card
+1. Create function in `src/cards/`
+2. Use `CardFactory.adaptiveCard()` for Adaptive Cards
+3. Return `Attachment` type
+4. Call via `context.sendActivity({ attachments: [card] })`
 
-### Debug
-```bash
-bun run --inspect src/index.ts  # Start with debugger
+### Modify Hint Visualization
+- Edit `src/services/boardRenderer.ts`
+- Key methods: `render()`, `drawHintGroups()`, `drawHintLinks()`
+- Test with different hint types from solver
+
+### Add New Service Integration
+1. Create service class in `src/services/`
+2. Inject via constructor in dialogs
+3. Handle errors gracefully with user feedback
+
+## Code Patterns
+
+### Type-Only Imports (Required)
+```typescript
+// Use 'type' keyword for type-only imports
+import { ComponentDialog, type DialogTurnResult } from 'botbuilder-dialogs';
 ```
+
+### Unused Parameters
+```typescript
+// Prefix with underscore to indicate intentionally unused
+private async handleAction(_context: TurnContext): Promise<void> { }
+```
+
+### Error Handling
+```typescript
+try {
+  const result = await this.solverService.solve(puzzle);
+} catch (error) {
+  console.error('Error getting hint:', error);
+  await context.sendActivity('Sorry, I had trouble. Please try again.');
+  return stepContext.endDialog({ puzzle, hint: null, applied: false });
+}
+```
+
+## Testing
+
+Currently no test framework. To test manually:
+
+1. Start the bot: `bun run dev`
+2. Use Bot Framework Emulator
+3. Or deploy to Azure and test via Teams
+
+## Docker Deployment
+
+Build and run with Docker:
+
+```bash
+# Build image
+docker build -t sudojo_bot .
+
+# Run container
+docker run -p 3978:3978 --env-file .env sudojo_bot
+```
+
+For production deployment with Traefik, see `docs/DEPLOYMENT.md`.
+
+## Debugging
+
+### Bot Framework Emulator
+1. Download from https://github.com/Microsoft/BotFramework-Emulator
+2. Connect to `http://localhost:3978/api/messages`
+3. Leave App ID/Password blank for local testing
+
+### Logs
+- All errors logged via `console.error()`
+- OCR processing logged via `console.log()`
+- Check container logs: `docker logs sudojo_bot`
+
+### Common Issues
+
+**OCR not extracting correctly:**
+- Ensure clear, well-lit image
+- Puzzle should fill most of the frame
+- Check `ocrService.ts` for validation rules
+
+**Hints not loading:**
+- Verify `SOLVER_API_URL` is correct
+- Check solver service is running
+- Review `solverService.ts` error handling
+
+**Teams images not downloading:**
+- Ensure `MICROSOFT_APP_ID` and `MICROSOFT_APP_PASSWORD` are set
+- Check `imageService.ts` Teams authentication
+
+## Performance Notes
+
+- `@napi-rs/canvas` requires native bindings (handled by Bun)
+- Tesseract.js loads ~15MB model on first use
+- Board rendering is CPU-intensive (~50-100ms per render)
+- Consider caching rendered images for repeated hints
+
+## Security Considerations
+
+- Never log `MICROSOFT_APP_PASSWORD`
+- Validate all image uploads before processing
+- Sanitize puzzle strings (81 chars, digits 0-9 only)
+- Rate limit API calls to solver service
