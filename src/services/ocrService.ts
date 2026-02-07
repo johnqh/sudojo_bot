@@ -5,8 +5,11 @@
 
 import { extractSudokuFromImage } from '@sudobility/sudojo_ocr';
 import { createNodeAdapter } from '@sudobility/sudojo_ocr/node';
-import type { CanvasAdapter, OCRResult, OCRProgress } from '@sudobility/sudojo_ocr';
+import type { CanvasAdapter, OCRResult, OCRProgress, TesseractModule } from '@sudobility/sudojo_ocr';
 import Tesseract from 'tesseract.js';
+
+// Cast Tesseract to our minimal interface for cross-version compatibility
+const tesseractModule = Tesseract as unknown as TesseractModule;
 
 export interface OCRExtractResult {
   /** 81-char puzzle string (0 = empty) */
@@ -57,7 +60,7 @@ export class OCRService {
     const result: OCRResult = await extractSudokuFromImage(
       this.adapter,
       imageBuffer,
-      Tesseract,
+      tesseractModule,
       {
         skipBoardDetection: false,
         preprocess: true,
