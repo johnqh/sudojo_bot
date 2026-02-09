@@ -6,7 +6,7 @@
       "dependencies": {
         "@napi-rs/canvas": "^0.1.68",
         "@sudobility/sudojo_ocr": "^1.1.0",
-        "@sudobility/sudojo_types": "^1.2.26",
+        "@sudobility/sudojo_types": "^1.2.27",
         "@sudobility/types": "^1.9.50",
         "botbuilder": "^4.23.1",
         "botbuilder-dialogs": "^4.23.1",
@@ -118,7 +118,7 @@
 
     "@sudobility/sudojo_ocr": ["@sudobility/sudojo_ocr@1.1.0", "", { "peerDependencies": { "tesseract.js": "^5.0.0 || ^6.0.0 || ^7.0.0" } }, "sha512-eHLDTkqq1PAN8SATaijTfHNktSyWjdHz0SMW4lZH1cpHEdRpClxbZnxMeqDTv7qf5iMKeZ+umfj4A38KkLMzMg=="],
 
-    "@sudobility/sudojo_types": ["@sudobility/sudojo_types@1.2.26", "", { "peerDependencies": { "@sudobility/types": "^1.9.50" } }, "sha512-XPTSTZ+O7tvY5rZK3ccafIpwk/5xaY+JU+HS4Hclt349B2vawzODmkbDcrFWaSDABLFykdrlamtgsfp7VYctrg=="],
+    "@sudobility/sudojo_types": ["@sudobility/sudojo_types@1.2.27", "", { "peerDependencies": { "@sudobility/types": "^1.9.50" } }, "sha512-QQBt1qrQhNTedYOVkatb0nPLVYrJf6ZJEe+evirwDXOdcxhDBanB5ZuXWrTxLjFWcTCVwrSOH7vJ6DeiVHqm6Q=="],
 
     "@sudobility/types": ["@sudobility/types@1.9.50", "", {}, "sha512-SKopIMJqgNVopcz/MNukrm936yKuBJMFcz4uUbQz9XB7cDjyuExoVeyMnvidMKtOLkmJSRdYYV4+M7eG7KN2aw=="],
 
