@@ -1,5 +1,5 @@
 ---
-# CI/CD workflow for sudojo_api
+# CI/CD workflow for sudojo_bot
 # - main branch: Runs tests and deploys to Docker Hub
 # - develop branch: Runs tests only
 
@@ -24,6 +24,6 @@ jobs:
   cicd:
     uses: johnqh/workflows/.github/workflows/unified-cicd.yml@main
     with:
-      docker-image-name: "sudojo_api"
-      skip-npm-publish: true # This is a Bun/Hono API, not an NPM library
+      docker-image-name: "sudojo_bot"
+      skip-npm-publish: true # This is a Bot Framework app, not an NPM library
     secrets: inherit # Pass all repository secrets

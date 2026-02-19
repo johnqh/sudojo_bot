@@ -132,7 +132,7 @@ Update your `.env`:
 ```bash
 MICROSOFT_APP_ID=your-app-id-from-azure
 MICROSOFT_APP_PASSWORD=your-client-secret
-MICROSOFT_APP_TYPE=MultiTenant
+MICROSOFT_APP_TYPE=SingleTenant
 SOLVER_API_URL=https://solver.sudojo.com
 PORT=3978
 ```
@@ -412,24 +412,17 @@ This deployment method is compatible with `sudobility_dockerized` scripts.
    PORT=3978
    MICROSOFT_APP_ID=your-app-id
    MICROSOFT_APP_PASSWORD=your-secret
-   MICROSOFT_APP_TYPE=MultiTenant
+   MICROSOFT_APP_TYPE=SingleTenant
    SOLVER_API_URL=https://solver.sudojo.com
    ```
 3. Generate Service Token for production environment
 
-### Step 2: Copy Deployment Scripts
+### Step 2: Deploy Service
+
+From the `sudobility_dockerized` directory on your server:
 
 ```bash
-# From sudobility_dockerized
-cp -r ~/shapeshyft/sudobility_dockerized/{add.sh,upgrade.sh,remove.sh,status.sh,versions.sh,setup-scripts} .
-
-# Make executable
-chmod +x *.sh
-```
-
-### Step 3: Deploy Service
-
-```bash
+cd ~/shapeshyft/sudobility_dockerized
 ./add.sh
 ```
 
@@ -440,7 +433,7 @@ When prompted:
 - **Health endpoint**: Select "1" for `/health`
 - **Doppler token**: Paste your service token
 
-### Step 4: Verify Deployment
+### Step 3: Verify Deployment
 
 ```bash
 # Check status
@@ -454,7 +447,7 @@ docker compose logs -f
 curl https://bot.sudojo.com/health
 ```
 
-### Step 5: Update Azure Bot Messaging Endpoint
+### Step 4: Update Azure Bot Messaging Endpoint
 
 In Azure Portal → Bot → Configuration:
 ```
@@ -464,22 +457,26 @@ Messaging endpoint: https://bot.sudojo.com/api/messages
 ### Upgrading
 
 ```bash
-# Pull new image and restart
+cd ~/shapeshyft/sudobility_dockerized
 ./upgrade.sh
 # Select sudojo_bot when prompted
 ```
 
 ### Directory Structure After Deployment
 
+The `sudobility_dockerized` scripts manage all services centrally:
+
 ```
-sudojo_bot/
+sudobility_dockerized/
 ├── add.sh
 ├── upgrade.sh
 ├── remove.sh
 ├── status.sh
 ├── versions.sh
 ├── setup-scripts/
-│   └── common.sh
+│   ├── common.sh
+│   ├── traefik.sh
+│   └── doppler.sh
 └── config-generated/
     ├── traefik/
     │   └── docker-compose.yml
@@ -501,7 +498,7 @@ sudojo_bot/
 | `PORT` | Yes | `3978` | HTTP server port |
 | `MICROSOFT_APP_ID` | Yes | - | Azure Bot app ID |
 | `MICROSOFT_APP_PASSWORD` | Yes | - | Azure Bot client secret |
-| `MICROSOFT_APP_TYPE` | No | `MultiTenant` | Auth type: `MultiTenant`, `SingleTenant`, or `ManagedIdentity` |
+| `MICROSOFT_APP_TYPE` | No | `SingleTenant` | Auth type: `SingleTenant` or `UserAssignedMSI` |
 | `SOLVER_API_URL` | Yes | - | URL of sudojo_solver API |
 | `NODE_ENV` | No | `production` | Environment mode |
 
