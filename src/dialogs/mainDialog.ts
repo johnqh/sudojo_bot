@@ -26,6 +26,7 @@ import { HintDialog } from './hintDialog.js';
 import { createWelcomeCard, createHelpCard } from '../cards/welcomeCard.js';
 import { createPuzzleCard } from '../cards/puzzleCard.js';
 import type { SudokuConversationData } from '../state/conversationState.js';
+import { ImageService } from '../services/imageService.js';
 
 export const MAIN_DIALOG = 'mainDialog';
 const MAIN_WATERFALL = 'mainWaterfall';
@@ -139,8 +140,7 @@ export class MainDialog extends ComponentDialog {
     conversationData: SudokuConversationData
   ): Promise<SudokuConversationData> {
     // Process image through OCR
-    const imageService = await import('../services/imageService.js');
-    const service = new imageService.ImageService();
+    const service = new ImageService();
     const attachment = service.getFirstImageAttachment(context);
 
     if (!attachment) {
