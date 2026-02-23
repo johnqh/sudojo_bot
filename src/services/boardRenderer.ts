@@ -185,6 +185,11 @@ export interface RenderResult {
   height: number;
 }
 
+/**
+ * Renders Sudoku boards with hint visualizations to PNG images.
+ * Uses @napi-rs/canvas for server-side rendering with light/dark palette support.
+ * Supports cell highlights, pencilmarks, group outlines, and chain link lines.
+ */
 export class BoardRenderer {
   private size: number;
 
@@ -751,7 +756,9 @@ export class BoardRenderer {
 }
 
 /**
- * Create a board renderer instance
+ * Factory function to create a BoardRenderer instance.
+ * @param size - Canvas size in pixels (square). Default: 450
+ * @returns A new BoardRenderer configured with the specified size
  */
 export function createBoardRenderer(size: number = 450): BoardRenderer {
   return new BoardRenderer(size);

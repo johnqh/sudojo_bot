@@ -20,6 +20,11 @@ export interface OCRExtractResult {
   digitCount: number;
 }
 
+/**
+ * OCR service for extracting Sudoku puzzles from images.
+ * Wraps @sudobility/sudojo_ocr with Node.js canvas adapter.
+ * Lazy-initializes the canvas adapter on first use.
+ */
 export class OCRService {
   private adapter: CanvasAdapter | null = null;
   private initPromise: Promise<void> | null = null;

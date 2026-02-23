@@ -57,7 +57,16 @@ function formatHintGrid(original: string, user: string, cells: SolverHintCell[])
 }
 
 /**
- * Create a card showing a single hint step
+ * Create an Adaptive Card showing a single hint step with grid visualization.
+ * Highlights affected cells using bracket notation: [n]=place, (n)=remove, *n*=highlight.
+ * @param step - The solver hint step containing cells, title, and text
+ * @param stepIndex - Zero-based index of the current step
+ * @param totalSteps - Total number of steps in the hint
+ * @param original - Original puzzle string (81 chars)
+ * @param user - User's progress string (81 chars)
+ * @param technique - Human-readable technique name
+ * @param level - Technique difficulty level (1-12)
+ * @returns Bot Framework Attachment containing the hint step Adaptive Card
  */
 export function createHintStepCard(
   step: SolverHintStep,
@@ -159,7 +168,12 @@ export function createHintStepCard(
 }
 
 /**
- * Create a summary card after applying a hint
+ * Create an Adaptive Card confirming a hint was applied.
+ * Shows the technique used, remaining cell count, and next action buttons.
+ * @param original - Original puzzle string (81 chars)
+ * @param user - Updated user progress string after hint application
+ * @param technique - Name of the technique that was applied
+ * @returns Bot Framework Attachment containing the hint-applied Adaptive Card
  */
 export function createHintAppliedCard(
   original: string,
@@ -251,7 +265,10 @@ export function createHintAppliedCard(
 }
 
 /**
- * Create an error card when no hint is available
+ * Create an Adaptive Card displayed when no hint is available.
+ * Shows a warning-colored header with the reason and a "New Puzzle" button.
+ * @param reason - Human-readable explanation for why no hint is available
+ * @returns Bot Framework Attachment containing the no-hint Adaptive Card
  */
 export function createNoHintCard(reason: string): Attachment {
   const card = {

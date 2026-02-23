@@ -33,6 +33,11 @@ interface DialogValues {
   puzzle?: PuzzleState;
 }
 
+/**
+ * Dialog for handling image upload, OCR extraction, and puzzle confirmation.
+ * Implements a 4-step waterfall: prompt for image, process OCR, confirm puzzle, finalize.
+ * Returns PuzzleUploadResult with the extracted puzzle state and confirmation status.
+ */
 export class PuzzleUploadDialog extends ComponentDialog {
   private ocrService: OCRService;
   private solverService: SolverService;

@@ -17,6 +17,11 @@ import {
 } from './state/conversationState.js';
 import { createWelcomeCard } from './cards/welcomeCard.js';
 
+/**
+ * Main bot class for the Sudoku Hint Bot.
+ * Extends ActivityHandler to process incoming messages and member additions.
+ * Routes messages through MainDialog and manages conversation/user state.
+ */
 export class SudokuHintBot extends ActivityHandler {
   private conversationState: ConversationState;
   private userState: UserState;

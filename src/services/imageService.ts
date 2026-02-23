@@ -5,6 +5,10 @@
 
 import type { TurnContext, Attachment } from 'botbuilder';
 
+/**
+ * Service for downloading image attachments from Bot Framework messages.
+ * Handles platform-specific authentication for Teams, Slack, and other channels.
+ */
 export class ImageService {
   /**
    * Download an image attachment from a message

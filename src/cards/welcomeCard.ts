@@ -4,6 +4,11 @@
 
 import { CardFactory, type Attachment } from 'botbuilder';
 
+/**
+ * Create an Adaptive Card with welcome message and usage instructions.
+ * Displayed when a new user joins or when no puzzle is loaded.
+ * @returns Bot Framework Attachment containing the welcome Adaptive Card
+ */
 export function createWelcomeCard(): Attachment {
   const card = {
     type: 'AdaptiveCard',
@@ -64,6 +69,11 @@ export function createWelcomeCard(): Attachment {
   return CardFactory.adaptiveCard(card);
 }
 
+/**
+ * Create an Adaptive Card listing all available bot commands.
+ * Displayed when user sends 'help' or '?'.
+ * @returns Bot Framework Attachment containing the help Adaptive Card
+ */
 export function createHelpCard(): Attachment {
   const card = {
     type: 'AdaptiveCard',

@@ -35,7 +35,11 @@ function formatPuzzleGrid(puzzle: string): string {
 }
 
 /**
- * Create a card showing the recognized puzzle
+ * Create an Adaptive Card showing the recognized Sudoku puzzle grid.
+ * Displays the puzzle in monospace text with clue count and OCR confidence.
+ * @param puzzle - The puzzle state containing the original puzzle string and confidence
+ * @param showConfirmation - Whether to show confirm/reject buttons (default: true)
+ * @returns Bot Framework Attachment containing the puzzle Adaptive Card
  */
 export function createPuzzleCard(
   puzzle: PuzzleState,
@@ -116,7 +120,12 @@ export function createPuzzleCard(
 }
 
 /**
- * Create a card showing the current puzzle progress
+ * Create an Adaptive Card showing the current puzzle progress.
+ * Merges original clues with user input, displays fill count and remaining cells.
+ * @param original - Original puzzle string (81 chars, '0' = empty)
+ * @param user - User's progress string (81 chars, '0' = no input)
+ * @param _solution - Solution string (unused, reserved for future validation)
+ * @returns Bot Framework Attachment containing the progress Adaptive Card
  */
 export function createProgressCard(original: string, user: string, _solution?: string): Attachment {
   // Merge original and user input

@@ -29,6 +29,11 @@ export interface HintDialogResult {
   applied: boolean;
 }
 
+/**
+ * Dialog for fetching hints and navigating through hint steps.
+ * Supports three actions: get_hint, next_step, and apply_hint.
+ * Returns HintDialogResult with updated puzzle and hint state.
+ */
 export class HintDialog extends ComponentDialog {
   private solverService: SolverService;
 

@@ -31,6 +31,11 @@ import { ImageService } from '../services/imageService.js';
 export const MAIN_DIALOG = 'mainDialog';
 const MAIN_WATERFALL = 'mainWaterfall';
 
+/**
+ * Root dialog that orchestrates the Sudoku Hint Bot conversation flow.
+ * Handles image uploads, text commands, Adaptive Card actions, hint navigation,
+ * and board rendering. Manages OCRService, SolverService, and BoardRenderer.
+ */
 export class MainDialog extends ComponentDialog {
   private ocrService: OCRService;
   private solverService: SolverService;

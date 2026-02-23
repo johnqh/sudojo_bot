@@ -22,6 +22,10 @@ export interface ValidateResult {
   solution?: string;
 }
 
+/**
+ * HTTP client service for the Sudojo solver API.
+ * Provides methods to solve puzzles, validate uniqueness, check completion, and apply hints.
+ */
 export class SolverService {
   private baseUrl: string;
 
