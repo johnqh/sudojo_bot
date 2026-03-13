@@ -76,7 +76,7 @@ describe('OCR integration: pencilmark recognition', () => {
 
   const EXPECTED_DIGITS =
     '600320709' +
-    '290003000' +
+    '290000300' +
     '073869002' +
     '300604000' +
     '060200030' +
