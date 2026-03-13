@@ -74,7 +74,7 @@ export class OCRService {
         skipBoardDetection: false,
         preprocess: true,
         minConfidence: 1,
-        cellMargin: 0.154,
+        cellMargin: 0.03,
         recognizePencilmarks: true,
       },
       onProgress
