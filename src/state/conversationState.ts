@@ -17,6 +17,10 @@ export interface PuzzleState {
   solution?: string;
   /** OCR confidence score (0-100) */
   confidence: number;
+  /** Comma-separated pencilmark string (81 entries) */
+  pencilmarks?: string;
+  /** Whether pencilmarks are from OCR detection */
+  autopencil?: boolean;
 }
 
 /**

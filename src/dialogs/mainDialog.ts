@@ -180,6 +180,8 @@ export class MainDialog extends ComponentDialog {
         user: '0'.repeat(81),
         solution: solverValidation.solution,
         confidence: ocrResult.confidence,
+        pencilmarks: ocrResult.pencilmarks,
+        autopencil: ocrResult.autopencil,
       };
 
       const card = createPuzzleCard(puzzleState, true);
@@ -292,7 +294,9 @@ export class MainDialog extends ComponentDialog {
     try {
       const result = await this.solverService.solve(
         conversationData.currentPuzzle.original,
-        conversationData.currentPuzzle.user
+        conversationData.currentPuzzle.user,
+        conversationData.currentPuzzle.pencilmarks,
+        conversationData.currentPuzzle.autopencil ?? false
       );
 
       if (!result.hints || result.hints.steps.length === 0) {
@@ -438,7 +442,9 @@ export class MainDialog extends ComponentDialog {
     try {
       const result = await this.solverService.solve(
         conversationData.currentPuzzle.original,
-        conversationData.currentPuzzle.user
+        conversationData.currentPuzzle.user,
+        conversationData.currentPuzzle.pencilmarks,
+        conversationData.currentPuzzle.autopencil ?? false
       );
 
       const updatedUser = this.solverService.applyHint(
@@ -523,6 +529,8 @@ export class MainDialog extends ComponentDialog {
         currentPuzzle: {
           ...conversationData.currentPuzzle,
           user: updatedUser,
+          pencilmarks: result.board.pencilmark.numbers,
+          autopencil: result.board.pencilmark.autopencil,
         },
         currentHint: null,
       };

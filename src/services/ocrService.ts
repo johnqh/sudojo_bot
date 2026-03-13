@@ -18,6 +18,10 @@ export interface OCRExtractResult {
   confidence: number;
   /** Number of digits recognized */
   digitCount: number;
+  /** Comma-separated pencilmark string (81 entries) */
+  pencilmarks: string;
+  /** Whether OCR detected pencilmarks in the image */
+  autopencil: boolean;
 }
 
 /**
@@ -71,14 +75,17 @@ export class OCRService {
         preprocess: true,
         minConfidence: 1,
         cellMargin: 0.154,
+        recognizePencilmarks: true,
       },
       onProgress
     );
 
     return {
-      puzzle: result.puzzle,
+      puzzle: result.board.original,
       confidence: result.confidence,
       digitCount: result.digitCount,
+      pencilmarks: result.board.pencilmark.numbers,
+      autopencil: result.board.pencilmark.autopencil,
     };
   }
 

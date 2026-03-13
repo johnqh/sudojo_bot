@@ -163,6 +163,8 @@ export class PuzzleUploadDialog extends ComponentDialog {
         user: '0'.repeat(81),
         solution: solverValidation.solution,
         confidence: ocrResult.confidence,
+        pencilmarks: ocrResult.pencilmarks,
+        autopencil: ocrResult.autopencil,
       };
 
       (stepContext.values as DialogValues).puzzle = puzzleState;
