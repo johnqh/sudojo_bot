@@ -15,6 +15,7 @@ import { SudokuHintBot } from './bot.js';
 import { MainDialog } from './dialogs/mainDialog.js';
 import { OCRService } from './services/ocrService.js';
 import { SolverService } from './services/solverService.js';
+import { t } from './i18n/index.js';
 
 // Load environment variables
 const PORT = process.env.PORT || 3978;
@@ -41,7 +42,7 @@ adapter.onTurnError = async (context, error) => {
   console.error(error.stack);
 
   // Send error message to user
-  await context.sendActivity('Sorry, something went wrong. Please try again.');
+  await context.sendActivity(t('error.somethingWentWrong'));
 
   // Clear conversation state on error
   await conversationState.delete(context);
@@ -69,7 +70,7 @@ server.post('/api/messages', async (req, res) => {
 
 // Health check endpoint
 server.get('/health', (_req, res, next) => {
-  res.send(200, { status: 'healthy', name: 'Sudoku Hint Bot' });
+  res.send(200, { status: t('server.healthStatus'), name: t('server.healthName') });
   next();
 });
 

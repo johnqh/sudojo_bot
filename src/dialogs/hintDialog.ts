@@ -14,6 +14,7 @@ import { createHintStepCard, createHintAppliedCard, createNoHintCard } from '../
 import type { PuzzleState, HintState } from '../state/conversationState.js';
 import type { SolverHints } from '@sudobility/sudojo_types';
 import { getTechniqueNameById } from '@sudobility/sudojo_types';
+import { t } from '../i18n/index.js';
 
 export const HINT_DIALOG = 'hintDialog';
 
@@ -83,7 +84,7 @@ export class HintDialog extends ComponentDialog {
         puzzle.solution &&
         this.solverService.isPuzzleSolved(puzzle.original, puzzle.user, puzzle.solution)
       ) {
-        const card = createNoHintCard('The puzzle is already complete!');
+        const card = createNoHintCard(t('dialog.puzzleAlreadyComplete'));
         await stepContext.context.sendActivity({ attachments: [card] });
         return stepContext.endDialog({
           puzzle,
@@ -92,14 +93,12 @@ export class HintDialog extends ComponentDialog {
         } as HintDialogResult);
       }
 
-      await stepContext.context.sendActivity('Analyzing puzzle...');
+      await stepContext.context.sendActivity(t('dialog.analyzingPuzzle'));
 
       const result = await this.solverService.solve(puzzle.original, puzzle.user);
 
       if (!result.hints || result.hints.steps.length === 0) {
-        const card = createNoHintCard(
-          "I couldn't find a hint for this puzzle state. The puzzle may be invalid or already complete."
-        );
+        const card = createNoHintCard(t('dialog.noHintForState'));
         await stepContext.context.sendActivity({ attachments: [card] });
         return stepContext.endDialog({
           puzzle,
@@ -119,9 +118,7 @@ export class HintDialog extends ComponentDialog {
       } as HintDialogResult);
     } catch (error) {
       console.error('Error getting hint:', error);
-      await stepContext.context.sendActivity(
-        'Sorry, I had trouble getting a hint. Please try again.'
-      );
+      await stepContext.context.sendActivity(t('dialog.hintError'));
       return stepContext.endDialog({
         puzzle,
         hint: null,
@@ -139,7 +136,7 @@ export class HintDialog extends ComponentDialog {
     existingHint?: HintState
   ): Promise<DialogTurnResult> {
     if (!existingHint) {
-      await stepContext.context.sendActivity('No hint in progress. Let me get a new hint for you.');
+      await stepContext.context.sendActivity(t('dialog.noHintInProgress'));
       return this.getNewHint(stepContext, puzzle);
     }
 
@@ -147,9 +144,7 @@ export class HintDialog extends ComponentDialog {
     const nextIndex = existingHint.currentStepIndex + 1;
     if (nextIndex >= existingHint.steps.length) {
       // Already at last step, show apply option
-      await stepContext.context.sendActivity(
-        "You're at the last step. Use 'apply' to apply this hint."
-      );
+      await stepContext.context.sendActivity(t('dialog.lastStepApplyShort'));
       const card = this.createHintCard(puzzle, existingHint);
       await stepContext.context.sendActivity({ attachments: [card] });
       return stepContext.endDialog({
@@ -183,7 +178,7 @@ export class HintDialog extends ComponentDialog {
     existingHint?: HintState
   ): Promise<DialogTurnResult> {
     if (!existingHint) {
-      await stepContext.context.sendActivity('No hint to apply. Let me get a new hint for you.');
+      await stepContext.context.sendActivity(t('dialog.noHintToApply'));
       return this.getNewHint(stepContext, puzzle);
     }
 
@@ -209,9 +204,7 @@ export class HintDialog extends ComponentDialog {
       } as HintDialogResult);
     } catch (error) {
       console.error('Error applying hint:', error);
-      await stepContext.context.sendActivity(
-        'Sorry, I had trouble applying the hint. Please try again.'
-      );
+      await stepContext.context.sendActivity(t('dialog.applyError'));
       return stepContext.endDialog({
         puzzle,
         hint: existingHint,
@@ -238,7 +231,7 @@ export class HintDialog extends ComponentDialog {
   private createHintCard(puzzle: PuzzleState, hint: HintState) {
     const step = hint.steps[hint.currentStepIndex];
     if (!step) {
-      return createNoHintCard('Hint step not found');
+      return createNoHintCard(t('hint.hintStepNotFound'));
     }
 
     return createHintStepCard(

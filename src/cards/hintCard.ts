@@ -4,6 +4,7 @@
 
 import { CardFactory, type Attachment } from 'botbuilder';
 import type { SolverHintStep, SolverHintCell } from '@sudobility/sudojo_types';
+import { t } from '../i18n/index.js';
 
 /**
  * Format cells to highlight in the grid
@@ -82,14 +83,14 @@ export function createHintStepCard(
   const body: unknown[] = [
     {
       type: 'TextBlock',
-      text: `${technique} (Level ${level})`,
+      text: t('hint.techniqueLevel', { technique, level }),
       weight: 'Bolder',
       size: 'Large',
       wrap: true,
     },
     {
       type: 'TextBlock',
-      text: `Step ${stepIndex + 1} of ${totalSteps}`,
+      text: t('hint.stepOf', { current: stepIndex + 1, total: totalSteps }),
       weight: 'Bolder',
       size: 'Small',
       color: 'Accent',
@@ -123,7 +124,7 @@ export function createHintStepCard(
     // Add legend
     body.push({
       type: 'TextBlock',
-      text: '[n] = place digit | (n) = remove candidate | *n* = highlight',
+      text: t('hint.legend'),
       size: 'Small',
       isSubtle: true,
       wrap: true,
@@ -137,7 +138,7 @@ export function createHintStepCard(
   if (stepIndex < totalSteps - 1) {
     actions.push({
       type: 'Action.Submit',
-      title: 'Next Step',
+      title: t('hint.nextStep'),
       data: { action: 'next_step' },
     });
   }
@@ -145,14 +146,14 @@ export function createHintStepCard(
   if (stepIndex === totalSteps - 1) {
     actions.push({
       type: 'Action.Submit',
-      title: 'Apply Hint',
+      title: t('hint.applyHint'),
       data: { action: 'apply_hint' },
     });
   }
 
   actions.push({
     type: 'Action.Submit',
-    title: 'New Puzzle',
+    title: t('puzzle.newPuzzle'),
     data: { action: 'new_puzzle' },
   });
 
@@ -195,7 +196,7 @@ export function createHintAppliedCard(
   const body: unknown[] = [
     {
       type: 'TextBlock',
-      text: 'Hint Applied',
+      text: t('hint.hintApplied'),
       weight: 'Bolder',
       size: 'Large',
       color: 'Good',
@@ -203,7 +204,7 @@ export function createHintAppliedCard(
     },
     {
       type: 'TextBlock',
-      text: `Applied: ${technique}`,
+      text: t('hint.appliedTechnique', { technique }),
       wrap: true,
     },
   ];
@@ -211,7 +212,7 @@ export function createHintAppliedCard(
   if (isPuzzleComplete) {
     body.push({
       type: 'TextBlock',
-      text: 'Congratulations! The puzzle is complete!',
+      text: t('hint.congratsComplete'),
       weight: 'Bolder',
       size: 'Medium',
       color: 'Good',
@@ -221,7 +222,7 @@ export function createHintAppliedCard(
   } else {
     body.push({
       type: 'TextBlock',
-      text: `${remaining} cells remaining`,
+      text: t('hint.cellsRemaining', { count: remaining }),
       wrap: true,
       spacing: 'Small',
     });
@@ -231,24 +232,24 @@ export function createHintAppliedCard(
     ? [
         {
           type: 'Action.Submit',
-          title: 'New Puzzle',
+          title: t('puzzle.newPuzzle'),
           data: { action: 'new_puzzle' },
         },
       ]
     : [
         {
           type: 'Action.Submit',
-          title: 'Get Next Hint',
+          title: t('hint.getNextHint'),
           data: { action: 'get_hint' },
         },
         {
           type: 'Action.Submit',
-          title: 'Show Progress',
+          title: t('hint.showProgress'),
           data: { action: 'show_progress' },
         },
         {
           type: 'Action.Submit',
-          title: 'New Puzzle',
+          title: t('puzzle.newPuzzle'),
           data: { action: 'new_puzzle' },
         },
       ];
@@ -278,7 +279,7 @@ export function createNoHintCard(reason: string): Attachment {
     body: [
       {
         type: 'TextBlock',
-        text: 'No Hint Available',
+        text: t('hint.noHintAvailable'),
         weight: 'Bolder',
         size: 'Large',
         color: 'Warning',
@@ -294,7 +295,7 @@ export function createNoHintCard(reason: string): Attachment {
     actions: [
       {
         type: 'Action.Submit',
-        title: 'New Puzzle',
+        title: t('puzzle.newPuzzle'),
         data: { action: 'new_puzzle' },
       },
     ],

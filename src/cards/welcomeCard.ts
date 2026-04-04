@@ -3,6 +3,7 @@
  */
 
 import { CardFactory, type Attachment } from 'botbuilder';
+import { t } from '../i18n/index.js';
 
 /**
  * Create an Adaptive Card with welcome message and usage instructions.
@@ -17,32 +18,32 @@ export function createWelcomeCard(): Attachment {
     body: [
       {
         type: 'TextBlock',
-        text: 'Sudoku Hint Bot',
+        text: t('welcome.title'),
         weight: 'Bolder',
         size: 'Large',
         wrap: true,
       },
       {
         type: 'TextBlock',
-        text: 'I can help you solve Sudoku puzzles by providing step-by-step hints!',
+        text: t('welcome.subtitle'),
         wrap: true,
         spacing: 'Medium',
       },
       {
         type: 'TextBlock',
-        text: 'How to use:',
+        text: t('welcome.howToUse'),
         weight: 'Bolder',
         spacing: 'Medium',
         wrap: true,
       },
       {
         type: 'TextBlock',
-        text: '1. Upload a photo of your Sudoku puzzle\n2. Confirm the recognized puzzle is correct\n3. Ask for hints to solve it step by step',
+        text: t('welcome.instructions'),
         wrap: true,
       },
       {
         type: 'TextBlock',
-        text: 'Commands:',
+        text: t('welcome.commands'),
         weight: 'Bolder',
         spacing: 'Medium',
         wrap: true,
@@ -50,17 +51,17 @@ export function createWelcomeCard(): Attachment {
       {
         type: 'FactSet',
         facts: [
-          { title: 'hint', value: 'Get the next hint' },
-          { title: 'apply', value: 'Apply the current hint' },
-          { title: 'new', value: 'Start with a new puzzle' },
-          { title: 'help', value: 'Show this help message' },
+          { title: 'hint', value: t('welcome.commandHint') },
+          { title: 'apply', value: t('welcome.commandApply') },
+          { title: 'new', value: t('welcome.commandNew') },
+          { title: 'help', value: t('welcome.commandHelp') },
         ],
       },
     ],
     actions: [
       {
         type: 'Action.Submit',
-        title: 'Upload Puzzle',
+        title: t('welcome.uploadPuzzle'),
         data: { action: 'upload' },
       },
     ],
@@ -82,31 +83,31 @@ export function createHelpCard(): Attachment {
     body: [
       {
         type: 'TextBlock',
-        text: 'Help',
+        text: t('help.title'),
         weight: 'Bolder',
         size: 'Large',
         wrap: true,
       },
       {
         type: 'TextBlock',
-        text: 'Available commands:',
+        text: t('help.availableCommands'),
         wrap: true,
         spacing: 'Medium',
       },
       {
         type: 'FactSet',
         facts: [
-          { title: 'hint', value: 'Get the next solving hint' },
-          { title: 'next', value: 'Show the next step in current hint' },
-          { title: 'apply', value: 'Apply the hint to your puzzle' },
-          { title: 'new', value: 'Start with a new puzzle' },
-          { title: 'status', value: 'Show current puzzle status' },
-          { title: 'help', value: 'Show this help message' },
+          { title: 'hint', value: t('help.commandHint') },
+          { title: 'next', value: t('help.commandNext') },
+          { title: 'apply', value: t('help.commandApply') },
+          { title: 'new', value: t('help.commandNew') },
+          { title: 'status', value: t('help.commandStatus') },
+          { title: 'help', value: t('help.commandHelp') },
         ],
       },
       {
         type: 'TextBlock',
-        text: 'You can also upload a new puzzle image at any time.',
+        text: t('help.uploadAnytime'),
         wrap: true,
         spacing: 'Medium',
       },

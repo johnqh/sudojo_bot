@@ -4,6 +4,7 @@
 
 import { CardFactory, type Attachment } from 'botbuilder';
 import type { PuzzleState } from '../state/conversationState.js';
+import { t } from '../i18n/index.js';
 
 /**
  * Format a puzzle string as a 9x9 grid for display
@@ -51,7 +52,7 @@ export function createPuzzleCard(
   const body: unknown[] = [
     {
       type: 'TextBlock',
-      text: 'Recognized Puzzle',
+      text: t('puzzle.recognized'),
       weight: 'Bolder',
       size: 'Large',
       wrap: true,
@@ -66,8 +67,8 @@ export function createPuzzleCard(
     {
       type: 'FactSet',
       facts: [
-        { title: 'Clues', value: clueCount.toString() },
-        { title: 'Confidence', value: `${puzzle.confidence.toFixed(1)}%` },
+        { title: t('puzzle.clues'), value: clueCount.toString() },
+        { title: t('puzzle.confidence'), value: `${puzzle.confidence.toFixed(1)}%` },
       ],
       spacing: 'Medium',
     },
@@ -76,7 +77,7 @@ export function createPuzzleCard(
   if (showConfirmation) {
     body.push({
       type: 'TextBlock',
-      text: 'Is this correct?',
+      text: t('puzzle.isCorrect'),
       wrap: true,
       spacing: 'Medium',
     });
@@ -86,24 +87,24 @@ export function createPuzzleCard(
     ? [
         {
           type: 'Action.Submit',
-          title: 'Yes, get hints',
+          title: t('puzzle.yesGetHints'),
           data: { action: 'confirm_puzzle' },
         },
         {
           type: 'Action.Submit',
-          title: 'No, try again',
+          title: t('puzzle.noTryAgain'),
           data: { action: 'reject_puzzle' },
         },
       ]
     : [
         {
           type: 'Action.Submit',
-          title: 'Get Hint',
+          title: t('puzzle.getHint'),
           data: { action: 'get_hint' },
         },
         {
           type: 'Action.Submit',
-          title: 'New Puzzle',
+          title: t('puzzle.newPuzzle'),
           data: { action: 'new_puzzle' },
         },
       ];
@@ -156,7 +157,7 @@ export function createProgressCard(original: string, user: string, _solution?: s
   const body: unknown[] = [
     {
       type: 'TextBlock',
-      text: 'Current Progress',
+      text: t('puzzle.currentProgress'),
       weight: 'Bolder',
       size: 'Large',
       wrap: true,
@@ -171,8 +172,8 @@ export function createProgressCard(original: string, user: string, _solution?: s
     {
       type: 'FactSet',
       facts: [
-        { title: 'Cells filled', value: `${solvedCount}/${totalEmpty}` },
-        { title: 'Remaining', value: remaining.toString() },
+        { title: t('puzzle.cellsFilled'), value: `${solvedCount}/${totalEmpty}` },
+        { title: t('puzzle.remaining'), value: remaining.toString() },
       ],
       spacing: 'Medium',
     },
@@ -181,7 +182,7 @@ export function createProgressCard(original: string, user: string, _solution?: s
   if (remaining === 0) {
     body.push({
       type: 'TextBlock',
-      text: 'Congratulations! Puzzle complete!',
+      text: t('puzzle.congratsComplete'),
       weight: 'Bolder',
       color: 'Good',
       wrap: true,
@@ -197,7 +198,7 @@ export function createProgressCard(original: string, user: string, _solution?: s
     actions: [
       {
         type: 'Action.Submit',
-        title: remaining > 0 ? 'Get Hint' : 'New Puzzle',
+        title: remaining > 0 ? t('puzzle.getHint') : t('puzzle.newPuzzle'),
         data: { action: remaining > 0 ? 'get_hint' : 'new_puzzle' },
       },
     ],

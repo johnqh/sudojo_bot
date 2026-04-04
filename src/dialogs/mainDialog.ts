@@ -27,6 +27,7 @@ import { createWelcomeCard, createHelpCard } from '../cards/welcomeCard.js';
 import { createPuzzleCard } from '../cards/puzzleCard.js';
 import type { SudokuConversationData } from '../state/conversationState.js';
 import { ImageService } from '../services/imageService.js';
+import { t } from '../i18n/index.js';
 
 export const MAIN_DIALOG = 'mainDialog';
 const MAIN_WATERFALL = 'mainWaterfall';
@@ -129,9 +130,7 @@ export class MainDialog extends ComponentDialog {
     if (!conversationData.currentPuzzle) {
       await context.sendActivity({ attachments: [createWelcomeCard()] });
     } else {
-      await context.sendActivity(
-        "Send 'hint' to get a hint, 'status' to see progress, or 'new' to start a new puzzle."
-      );
+      await context.sendActivity(t('dialog.defaultPrompt'));
     }
 
     return conversationData;
@@ -149,11 +148,11 @@ export class MainDialog extends ComponentDialog {
     const attachment = service.getFirstImageAttachment(context);
 
     if (!attachment) {
-      await context.sendActivity('Please upload an image of your Sudoku puzzle.');
+      await context.sendActivity(t('dialog.uploadImage'));
       return conversationData;
     }
 
-    await context.sendActivity('Processing your puzzle image...');
+    await context.sendActivity(t('dialog.processingImage'));
 
     try {
       const imageBuffer = await service.downloadAttachment(context, attachment);
@@ -162,16 +161,14 @@ export class MainDialog extends ComponentDialog {
       const validation = this.ocrService.validatePuzzle(ocrResult.puzzle);
       if (!validation.valid) {
         await context.sendActivity(
-          `I couldn't extract a valid puzzle: ${validation.error}. Please try a clearer image.`
+          t('dialog.invalidPuzzleExtraction', { error: validation.error })
         );
         return conversationData;
       }
 
       const solverValidation = await this.solverService.validate(ocrResult.puzzle);
       if (!solverValidation.valid) {
-        await context.sendActivity(
-          "This puzzle doesn't appear to have a unique solution. Please check the image and try again."
-        );
+        await context.sendActivity(t('dialog.noUniqueSolution'));
         return conversationData;
       }
 
@@ -195,7 +192,7 @@ export class MainDialog extends ComponentDialog {
       };
     } catch (error) {
       console.error('Error processing image:', error);
-      await context.sendActivity('Sorry, I had trouble processing that image. Please try again.');
+      await context.sendActivity(t('dialog.imageProcessError'));
       return conversationData;
     }
   }
@@ -226,7 +223,7 @@ export class MainDialog extends ComponentDialog {
       case 'show_progress':
         return this.handleShowProgress(context, conversationData);
       case 'upload':
-        await context.sendActivity('Please upload a photo of your Sudoku puzzle.');
+        await context.sendActivity(t('dialog.uploadPhoto'));
         return conversationData;
       default:
         return conversationData;
@@ -241,13 +238,11 @@ export class MainDialog extends ComponentDialog {
     conversationData: SudokuConversationData
   ): Promise<SudokuConversationData> {
     if (!conversationData.currentPuzzle) {
-      await context.sendActivity('No puzzle to confirm. Please upload an image.');
+      await context.sendActivity(t('dialog.noPuzzleToConfirm'));
       return conversationData;
     }
 
-    await context.sendActivity(
-      "Great! The puzzle is confirmed. Send 'hint' to get your first hint."
-    );
+    await context.sendActivity(t('dialog.confirmPuzzle'));
 
     return {
       ...conversationData,
@@ -262,7 +257,7 @@ export class MainDialog extends ComponentDialog {
     context: TurnContext,
     _conversationData: SudokuConversationData
   ): Promise<SudokuConversationData> {
-    await context.sendActivity('Starting fresh! Please upload a photo of your new Sudoku puzzle.');
+    await context.sendActivity(t('dialog.startFresh'));
 
     return {
       currentPuzzle: null,
@@ -279,9 +274,7 @@ export class MainDialog extends ComponentDialog {
     conversationData: SudokuConversationData
   ): Promise<SudokuConversationData> {
     if (!conversationData.currentPuzzle) {
-      await context.sendActivity(
-        'No puzzle loaded. Please upload an image of your Sudoku puzzle first.'
-      );
+      await context.sendActivity(t('dialog.noPuzzleLoaded'));
       return conversationData;
     }
 
@@ -300,9 +293,7 @@ export class MainDialog extends ComponentDialog {
       );
 
       if (!result.hints || result.hints.steps.length === 0) {
-        await context.sendActivity(
-          "I couldn't find a hint. The puzzle may be complete or invalid."
-        );
+        await context.sendActivity(t('dialog.noHintFound'));
         return conversationData;
       }
 
@@ -334,7 +325,7 @@ export class MainDialog extends ComponentDialog {
       };
     } catch (error) {
       console.error('Error getting hint:', error);
-      await context.sendActivity('Sorry, I had trouble getting a hint. Please try again.');
+      await context.sendActivity(t('dialog.hintError'));
       return conversationData;
     }
   }
@@ -352,7 +343,7 @@ export class MainDialog extends ComponentDialog {
 
     const nextIndex = conversationData.currentHint.currentStepIndex + 1;
     if (nextIndex >= conversationData.currentHint.steps.length) {
-      await context.sendActivity("You're at the last step. Send 'apply' to apply this hint.");
+      await context.sendActivity(t('dialog.lastStepApply'));
       return conversationData;
     }
 
@@ -394,7 +385,7 @@ export class MainDialog extends ComponentDialog {
 
     const prevIndex = conversationData.currentHint.currentStepIndex - 1;
     if (prevIndex < 0) {
-      await context.sendActivity("You're at the first step.");
+      await context.sendActivity(t('dialog.firstStep'));
       return conversationData;
     }
 
@@ -431,7 +422,7 @@ export class MainDialog extends ComponentDialog {
     conversationData: SudokuConversationData
   ): Promise<SudokuConversationData> {
     if (!conversationData.currentPuzzle) {
-      await context.sendActivity('No puzzle loaded. Please upload an image first.');
+      await context.sendActivity(t('dialog.noPuzzleLoadedShort'));
       return conversationData;
     }
 
@@ -479,8 +470,8 @@ export class MainDialog extends ComponentDialog {
             {
               type: 'TextBlock',
               text: isPuzzleComplete
-                ? '🎉 **Puzzle Complete!**'
-                : `✓ **${conversationData.currentHint.technique}** applied`,
+                ? t('dialog.puzzleCompleteBold')
+                : t('dialog.techniqueAppliedBold', { technique: conversationData.currentHint.technique }),
               wrap: true,
               weight: 'Bolder',
               size: 'Medium',
@@ -495,8 +486,8 @@ export class MainDialog extends ComponentDialog {
             {
               type: 'TextBlock',
               text: isPuzzleComplete
-                ? "Congratulations! You've solved the puzzle."
-                : 'The hint has been applied to your board.',
+                ? t('dialog.congratsSolved')
+                : t('dialog.hintAppliedToBoard'),
               wrap: true,
             },
           ],
@@ -504,19 +495,19 @@ export class MainDialog extends ComponentDialog {
             ? [
                 {
                   type: 'Action.Submit',
-                  title: 'New Puzzle',
+                  title: t('puzzle.newPuzzle'),
                   data: { action: 'new_puzzle' },
                 },
               ]
             : [
                 {
                   type: 'Action.Submit',
-                  title: 'Get Another Hint',
+                  title: t('dialog.getAnotherHint'),
                   data: { action: 'get_hint' },
                 },
                 {
                   type: 'Action.Submit',
-                  title: 'New Puzzle',
+                  title: t('puzzle.newPuzzle'),
                   data: { action: 'new_puzzle' },
                 },
               ],
@@ -536,7 +527,7 @@ export class MainDialog extends ComponentDialog {
       };
     } catch (error) {
       console.error('Error applying hint:', error);
-      await context.sendActivity('Sorry, I had trouble applying the hint. Please try again.');
+      await context.sendActivity(t('dialog.applyError'));
       return conversationData;
     }
   }
@@ -549,7 +540,7 @@ export class MainDialog extends ComponentDialog {
     conversationData: SudokuConversationData
   ): Promise<SudokuConversationData> {
     if (!conversationData.currentPuzzle) {
-      await context.sendActivity('No puzzle loaded. Please upload an image first.');
+      await context.sendActivity(t('dialog.noPuzzleLoadedShort'));
       return conversationData;
     }
 
@@ -580,7 +571,7 @@ export class MainDialog extends ComponentDialog {
         body: [
           {
             type: 'TextBlock',
-            text: `**Progress: ${progress}%** (${filledCells}/81 cells)`,
+            text: t('puzzle.progressStatus', { progress, filled: filledCells }),
             wrap: true,
             weight: 'Bolder',
             size: 'Medium',
@@ -595,12 +586,12 @@ export class MainDialog extends ComponentDialog {
         actions: [
           {
             type: 'Action.Submit',
-            title: 'Get Hint',
+            title: t('puzzle.getHint'),
             data: { action: 'get_hint' },
           },
           {
             type: 'Action.Submit',
-            title: 'New Puzzle',
+            title: t('puzzle.newPuzzle'),
             data: { action: 'new_puzzle' },
           },
         ],
@@ -634,8 +625,8 @@ export class MainDialog extends ComponentDialog {
     const imageDataUrl = `data:image/png;base64,${base64Image}`;
 
     // Build hint text (use step.text as the explanation)
-    const stepText = step.text || 'Follow the highlighted cells.';
-    const stepProgress = `Step ${stepIndex + 1} of ${totalSteps}`;
+    const stepText = step.text || t('hint.followHighlighted');
+    const stepProgress = t('hint.stepOf', { current: stepIndex + 1, total: totalSteps });
     const isLastStep = stepIndex === totalSteps - 1;
 
     // Create message with image and text
@@ -647,7 +638,7 @@ export class MainDialog extends ComponentDialog {
         body: [
           {
             type: 'TextBlock',
-            text: `**${technique}** (Level ${level})`,
+            text: t('hint.techniqueLevelBold', { technique, level }),
             wrap: true,
             weight: 'Bolder',
             size: 'Medium',
@@ -676,7 +667,7 @@ export class MainDialog extends ComponentDialog {
             ? [
                 {
                   type: 'Action.Submit',
-                  title: '← Previous',
+                  title: t('hint.previousStep'),
                   data: { action: 'previous_step' },
                 },
               ]
@@ -685,20 +676,20 @@ export class MainDialog extends ComponentDialog {
             ? [
                 {
                   type: 'Action.Submit',
-                  title: 'Apply Hint ✓',
+                  title: t('hint.applyHintCheck'),
                   data: { action: 'apply_hint' },
                 },
               ]
             : [
                 {
                   type: 'Action.Submit',
-                  title: 'Next Step →',
+                  title: t('hint.nextStepArrow'),
                   data: { action: 'next_step' },
                 },
               ]),
           {
             type: 'Action.Submit',
-            title: 'New Puzzle',
+            title: t('puzzle.newPuzzle'),
             data: { action: 'new_puzzle' },
           },
         ],

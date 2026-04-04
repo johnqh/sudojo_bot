@@ -19,6 +19,7 @@ import { SolverService } from '../services/solverService.js';
 import { ImageService } from '../services/imageService.js';
 import { createPuzzleCard } from '../cards/puzzleCard.js';
 import type { PuzzleState } from '../state/conversationState.js';
+import { t } from '../i18n/index.js';
 
 export const PUZZLE_UPLOAD_DIALOG = 'puzzleUploadDialog';
 const ATTACHMENT_PROMPT = 'attachmentPrompt';
@@ -79,16 +80,14 @@ export class PuzzleUploadDialog extends ComponentDialog {
 
     const attachments = promptContext.recognized.value;
     if (!attachments || attachments.length === 0) {
-      await promptContext.context.sendActivity('Please upload an image of your Sudoku puzzle.');
+      await promptContext.context.sendActivity(t('dialog.uploadImage'));
       return false;
     }
 
     const hasImage = attachments.some(a => this.imageService.isImageAttachment(a));
 
     if (!hasImage) {
-      await promptContext.context.sendActivity(
-        "That doesn't look like an image. Please upload a photo of your Sudoku puzzle."
-      );
+      await promptContext.context.sendActivity(t('dialog.notAnImage'));
       return false;
     }
 
@@ -108,8 +107,8 @@ export class PuzzleUploadDialog extends ComponentDialog {
     }
 
     return stepContext.prompt(ATTACHMENT_PROMPT, {
-      prompt: 'Please upload a photo of your Sudoku puzzle.',
-      retryPrompt: 'I need an image to extract the puzzle. Please upload a photo.',
+      prompt: t('dialog.uploadPhotoPrompt'),
+      retryPrompt: t('dialog.retryPrompt'),
     });
   }
 
@@ -121,13 +120,11 @@ export class PuzzleUploadDialog extends ComponentDialog {
     const imageAttachment = attachments.find(a => this.imageService.isImageAttachment(a));
 
     if (!imageAttachment) {
-      await stepContext.context.sendActivity(
-        "I couldn't find an image in your message. Please try again."
-      );
+      await stepContext.context.sendActivity(t('dialog.couldNotFindImage'));
       return stepContext.endDialog({ puzzle: null, confirmed: false });
     }
 
-    await stepContext.context.sendActivity('Processing your puzzle image...');
+    await stepContext.context.sendActivity(t('dialog.processingImage'));
 
     try {
       // Download the image
@@ -143,7 +140,7 @@ export class PuzzleUploadDialog extends ComponentDialog {
       const validation = this.ocrService.validatePuzzle(ocrResult.puzzle);
       if (!validation.valid) {
         await stepContext.context.sendActivity(
-          `I couldn't extract a valid puzzle: ${validation.error}. Please try a clearer image.`
+          t('dialog.invalidPuzzleExtraction', { error: validation.error })
         );
         return stepContext.endDialog({ puzzle: null, confirmed: false });
       }
@@ -151,9 +148,7 @@ export class PuzzleUploadDialog extends ComponentDialog {
       // Validate with solver (check for unique solution)
       const solverValidation = await this.solverService.validate(ocrResult.puzzle);
       if (!solverValidation.valid) {
-        await stepContext.context.sendActivity(
-          "This puzzle doesn't appear to have a unique solution. Please check the image and try again."
-        );
+        await stepContext.context.sendActivity(t('dialog.noUniqueSolution'));
         return stepContext.endDialog({ puzzle: null, confirmed: false });
       }
 
@@ -176,9 +171,7 @@ export class PuzzleUploadDialog extends ComponentDialog {
       return stepContext.next();
     } catch (error) {
       console.error('Error processing image:', error);
-      await stepContext.context.sendActivity(
-        'Sorry, I had trouble processing that image. Please try again with a clearer photo.'
-      );
+      await stepContext.context.sendActivity(t('dialog.imageProcessErrorClearer'));
       return stepContext.endDialog({ puzzle: null, confirmed: false });
     }
   }
@@ -188,8 +181,8 @@ export class PuzzleUploadDialog extends ComponentDialog {
    */
   private async confirmPuzzle(stepContext: WaterfallStepContext): Promise<DialogTurnResult> {
     return stepContext.prompt(CONFIRMATION_PROMPT, {
-      prompt: 'Is this puzzle correct?',
-      choices: ChoiceFactory.toChoices(['Yes, get hints', 'No, try again']),
+      prompt: t('dialog.isPuzzleCorrect'),
+      choices: ChoiceFactory.toChoices([t('puzzle.yesGetHints'), t('puzzle.noTryAgain')]),
     });
   }
 
@@ -207,9 +200,7 @@ export class PuzzleUploadDialog extends ComponentDialog {
       } as PuzzleUploadResult);
     }
 
-    await stepContext.context.sendActivity(
-      'No problem! Please upload another image of your puzzle.'
-    );
+    await stepContext.context.sendActivity(t('dialog.uploadAnother'));
     return stepContext.endDialog({
       puzzle: null,
       confirmed: false,
