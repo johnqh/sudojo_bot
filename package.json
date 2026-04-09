@@ -1,6 +1,6 @@
 {
   "name": "sudojo_bot",
-  "version": "1.0.30",
+  "version": "1.0.31",
   "description": "Microsoft Bot Framework bot for Sudoku hints",
   "main": "dist/index.js",
   "type": "module",
@@ -19,8 +19,8 @@
   },
   "dependencies": {
     "@napi-rs/canvas": "^0.1.68",
-    "@sudobility/sudojo_ocr": "^1.1.21",
-    "@sudobility/sudojo_types": "^1.2.46",
+    "@sudobility/sudojo_ocr": "^1.1.22",
+    "@sudobility/sudojo_types": "^1.2.48",
     "@sudobility/types": "^1.9.61",
     "botbuilder": "^4.23.1",
     "botbuilder-dialogs": "^4.23.1",
