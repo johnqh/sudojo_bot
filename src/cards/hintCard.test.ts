@@ -3,7 +3,8 @@ import { createHintStepCard, createHintAppliedCard, createNoHintCard } from './h
 import type { SolverHintStep } from '@sudobility/sudojo_types';
 
 describe('hintCard', () => {
-  const original = '530070000600195000098000060800060003400803001700020006060000280000419005000080079';
+  const original =
+    '530070000600195000098000060800060003400803001700020006060000280000419005000080079';
   const user = '000000000000000000000000000000000000000000000000000000000000000000000000000000000';
 
   describe('createHintStepCard', () => {
@@ -48,7 +49,8 @@ describe('hintCard', () => {
       const body = card.content.body;
 
       const techniqueBlock = body.find(
-        (b: { type: string; text?: string }) => b.type === 'TextBlock' && b.text?.includes('Hidden Pair')
+        (b: { type: string; text?: string }) =>
+          b.type === 'TextBlock' && b.text?.includes('Hidden Pair')
       );
       expect(techniqueBlock).toBeDefined();
       expect(techniqueBlock.text).toContain('Level 3');
@@ -59,7 +61,8 @@ describe('hintCard', () => {
       const body = card.content.body;
 
       const stepBlock = body.find(
-        (b: { type: string; text?: string }) => b.type === 'TextBlock' && b.text?.includes('Step 2 of 4')
+        (b: { type: string; text?: string }) =>
+          b.type === 'TextBlock' && b.text?.includes('Step 2 of 4')
       );
       expect(stepBlock).toBeDefined();
     });
@@ -76,29 +79,34 @@ describe('hintCard', () => {
 
   describe('createHintAppliedCard', () => {
     it('shows remaining count when incomplete', () => {
-      const userWithProgress = '004000000000000000000000000000000000000000000000000000000000000000000000000000000';
+      const userWithProgress =
+        '004000000000000000000000000000000000000000000000000000000000000000000000000000000';
       const card = createHintAppliedCard(original, userWithProgress, 'Naked Single');
       const body = card.content.body;
 
       const remainingBlock = body.find(
-        (b: { type: string; text?: string }) => b.type === 'TextBlock' && b.text?.includes('cells remaining')
+        (b: { type: string; text?: string }) =>
+          b.type === 'TextBlock' && b.text?.includes('cells remaining')
       );
       expect(remainingBlock).toBeDefined();
     });
 
     it('shows congratulations when complete', () => {
-      const completedUser = '004608912072000348100342507059701420026050790013904850901537204287000630345206100';
+      const completedUser =
+        '004608912072000348100342507059701420026050790013904850901537204287000630345206100';
       const card = createHintAppliedCard(original, completedUser, 'Naked Single');
       const body = card.content.body;
 
       const congratsBlock = body.find(
-        (b: { type: string; text?: string }) => b.type === 'TextBlock' && b.text?.includes('Congratulations')
+        (b: { type: string; text?: string }) =>
+          b.type === 'TextBlock' && b.text?.includes('Congratulations')
       );
       expect(congratsBlock).toBeDefined();
     });
 
     it('shows Get Next Hint when incomplete', () => {
-      const userWithProgress = '004000000000000000000000000000000000000000000000000000000000000000000000000000000';
+      const userWithProgress =
+        '004000000000000000000000000000000000000000000000000000000000000000000000000000000';
       const card = createHintAppliedCard(original, userWithProgress, 'Naked Single');
       const actions = card.content.actions;
 
@@ -107,7 +115,8 @@ describe('hintCard', () => {
     });
 
     it('only shows New Puzzle when complete', () => {
-      const completedUser = '004608912072000348100342507059701420026050790013904850901537204287000630345206100';
+      const completedUser =
+        '004608912072000348100342507059701420026050790013904850901537204287000630345206100';
       const card = createHintAppliedCard(original, completedUser, 'Naked Single');
       const actions = card.content.actions;
 
@@ -133,7 +142,8 @@ describe('hintCard', () => {
       const body = card.content.body;
 
       const titleBlock = body.find(
-        (b: { type: string; text?: string }) => b.type === 'TextBlock' && b.text === 'No Hint Available'
+        (b: { type: string; text?: string }) =>
+          b.type === 'TextBlock' && b.text === 'No Hint Available'
       );
       expect(titleBlock).toBeDefined();
     });

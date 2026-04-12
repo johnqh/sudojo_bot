@@ -5,7 +5,12 @@
 
 import { extractSudokuFromImage } from '@sudobility/sudojo_ocr';
 import { createNodeAdapter } from '@sudobility/sudojo_ocr/node';
-import type { CanvasAdapter, OCRResult, OCRProgress, TesseractModule } from '@sudobility/sudojo_ocr';
+import type {
+  CanvasAdapter,
+  OCRResult,
+  OCRProgress,
+  TesseractModule,
+} from '@sudobility/sudojo_ocr';
 import Tesseract from 'tesseract.js';
 
 // Cast Tesseract to our minimal interface for cross-version compatibility

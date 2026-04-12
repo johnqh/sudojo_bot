@@ -63,8 +63,10 @@ describe('puzzleCard', () => {
 
   describe('createProgressCard', () => {
     it('shows remaining cells count', () => {
-      const original = '530070000600195000098000060800060003400803001700020006060000280000419005000080079';
-      const user = '004608912072000348100342507059701420026050790013904850901537204287000630345206100';
+      const original =
+        '530070000600195000098000060800060003400803001700020006060000280000419005000080079';
+      const user =
+        '004608912072000348100342507059701420026050790013904850901537204287000630345206100';
 
       const card = createProgressCard(original, user);
       const factSet = card.content.body.find((b: { type: string }) => b.type === 'FactSet');
@@ -76,20 +78,25 @@ describe('puzzleCard', () => {
 
     it('shows congratulations when complete', () => {
       // All cells filled
-      const original = '530070000600195000098000060800060003400803001700020006060000280000419005000080079';
-      const user = '004608912072000348100342507059701420026050790013904850901537204287000630345206100';
+      const original =
+        '530070000600195000098000060800060003400803001700020006060000280000419005000080079';
+      const user =
+        '004608912072000348100342507059701420026050790013904850901537204287000630345206100';
 
       const card = createProgressCard(original, user);
       const congratsBlock = card.content.body.find(
-        (b: { type: string; text?: string }) => b.type === 'TextBlock' && b.text?.includes('Congratulations')
+        (b: { type: string; text?: string }) =>
+          b.type === 'TextBlock' && b.text?.includes('Congratulations')
       );
 
       expect(congratsBlock).toBeDefined();
     });
 
     it('shows Get Hint button when incomplete', () => {
-      const original = '530070000600195000098000060800060003400803001700020006060000280000419005000080079';
-      const user = '000000000000000000000000000000000000000000000000000000000000000000000000000000000';
+      const original =
+        '530070000600195000098000060800060003400803001700020006060000280000419005000080079';
+      const user =
+        '000000000000000000000000000000000000000000000000000000000000000000000000000000000';
 
       const card = createProgressCard(original, user);
       const actions = card.content.actions;
@@ -99,8 +106,10 @@ describe('puzzleCard', () => {
     });
 
     it('shows New Puzzle button when complete', () => {
-      const original = '530070000600195000098000060800060003400803001700020006060000280000419005000080079';
-      const user = '004608912072000348100342507059701420026050790013904850901537204287000630345206100';
+      const original =
+        '530070000600195000098000060800060003400803001700020006060000280000419005000080079';
+      const user =
+        '004608912072000348100342507059701420026050790013904850901537204287000630345206100';
 
       const card = createProgressCard(original, user);
       const actions = card.content.actions;

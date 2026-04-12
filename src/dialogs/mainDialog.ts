@@ -471,7 +471,9 @@ export class MainDialog extends ComponentDialog {
               type: 'TextBlock',
               text: isPuzzleComplete
                 ? t('dialog.puzzleCompleteBold')
-                : t('dialog.techniqueAppliedBold', { technique: conversationData.currentHint.technique }),
+                : t('dialog.techniqueAppliedBold', {
+                    technique: conversationData.currentHint.technique,
+                  }),
               wrap: true,
               weight: 'Bolder',
               size: 'Medium',
@@ -485,9 +487,7 @@ export class MainDialog extends ComponentDialog {
             },
             {
               type: 'TextBlock',
-              text: isPuzzleComplete
-                ? t('dialog.congratsSolved')
-                : t('dialog.hintAppliedToBoard'),
+              text: isPuzzleComplete ? t('dialog.congratsSolved') : t('dialog.hintAppliedToBoard'),
               wrap: true,
             },
           ],

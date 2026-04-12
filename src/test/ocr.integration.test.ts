@@ -29,20 +29,17 @@ describe('OCR integration: digit recognition', () => {
     {
       name: 'Board-1',
       path: path.resolve(__dirname, 'fixtures/Sudoku-Board-1.jpg'),
-      expected:
-        '509000400708304900601000730462500000385720649107408200200100004003040087070053006',
+      expected: '509000400708304900601000730462500000385720649107408200200100004003040087070053006',
     },
     {
       name: 'Board-2',
       path: path.resolve(__dirname, 'fixtures/Sudoku-Board-2.png'),
-      expected:
-        '700520008056098000040367050062780000801400002430019060000005000500602931007941500',
+      expected: '700520008056098000040367050062780000801400002430019060000005000500602931007941500',
     },
     {
       name: 'Board-3',
       path: path.resolve(__dirname, 'fixtures/Sudoku-Board-3.jpg'),
-      expected:
-        '000150000000894062908070050050483020603010500800205309140008090280940005000607800',
+      expected: '000150000000894062908070050050483020603010500800205309140008090280940005000607800',
     },
   ];
 
@@ -69,10 +66,7 @@ describe('OCR integration: digit recognition', () => {
 });
 
 describe('OCR integration: pencilmark recognition', () => {
-  const PENCILMARK_IMAGE = path.resolve(
-    __dirname,
-    'fixtures/Sudoku-Board-Pencilmarks.png'
-  );
+  const PENCILMARK_IMAGE = path.resolve(__dirname, 'fixtures/Sudoku-Board-Pencilmarks.png');
 
   const EXPECTED_DIGITS =
     '600320709' +
@@ -100,7 +94,7 @@ describe('OCR integration: pencilmark recognition', () => {
 
   const PENCILMARK_CELL_INDICES = expectedEntries
     .map((e, i) => (e.length > 0 ? i : -1))
-    .filter((i) => i >= 0);
+    .filter(i => i >= 0);
 
   it(
     'should detect pencilmarks and set autopencil true',
@@ -114,7 +108,7 @@ describe('OCR integration: pencilmark recognition', () => {
       const entries = result.board.pencilmark.numbers.split(',');
       expect(entries).toHaveLength(81);
 
-      const nonEmpty = entries.filter((e) => e.length > 0);
+      const nonEmpty = entries.filter(e => e.length > 0);
       expect(nonEmpty.length).toBeGreaterThanOrEqual(10);
     },
     TIMEOUT
@@ -158,9 +152,7 @@ describe('OCR integration: pencilmark recognition', () => {
         }
       }
 
-      expect(detected).toBeGreaterThanOrEqual(
-        Math.floor(PENCILMARK_CELL_INDICES.length * 0.5)
-      );
+      expect(detected).toBeGreaterThanOrEqual(Math.floor(PENCILMARK_CELL_INDICES.length * 0.5));
     },
     TIMEOUT
   );
@@ -181,7 +173,7 @@ describe('OCR integration: pencilmark recognition', () => {
         detectedCells++;
         const detectedDigits = new Set(entries[idx].split(''));
         const expectedDigits = new Set(expectedEntries[idx].split(''));
-        const allCorrect = [...detectedDigits].every((d) => expectedDigits.has(d));
+        const allCorrect = [...detectedDigits].every(d => expectedDigits.has(d));
         if (allCorrect) correctSubsetCount++;
       }
 
