@@ -6,9 +6,9 @@
       "name": "sudojo_bot",
       "dependencies": {
         "@napi-rs/canvas": "^0.1.68",
-        "@sudobility/sudojo_ocr": "^1.1.41",
-        "@sudobility/sudojo_types": "^1.2.66",
-        "@sudobility/types": "^1.9.66",
+        "@sudobility/sudojo_ocr": "^1.1.42",
+        "@sudobility/sudojo_types": "^1.2.67",
+        "@sudobility/types": "^1.9.67",
         "botbuilder": "^4.23.1",
         "botbuilder-dialogs": "^4.23.1",
         "i18next": "^26.0.3",
@@ -120,11 +120,11 @@
 
     "@netflix/nerror": ["@netflix/nerror@1.1.3", "", { "dependencies": { "assert-plus": "^1.0.0", "extsprintf": "^1.4.0", "lodash": "^4.17.15" } }, "sha512-b+MGNyP9/LXkapreJzNUzcvuzZslj/RGgdVVJ16P2wSlYatfLycPObImqVJSmNAdyeShvNeM/pl3sVZsObFueg=="],
 
-    "@sudobility/sudojo_ocr": ["@sudobility/sudojo_ocr@1.1.41", "", { "peerDependencies": { "@sudobility/sudojo_types": "^1.2.66", "tesseract.js": "^5.0.0 || ^6.0.0 || ^7.0.0" } }, "sha512-U6RwdbbASVmNHV1f83MdkFrMhKhwII+5rqHqlQxUzxzZVjh8W2Ee0vcMMWXCM0n4kNcW51WO+O+w09hrQXPPuw=="],
+    "@sudobility/sudojo_ocr": ["@sudobility/sudojo_ocr@1.1.42", "", { "peerDependencies": { "@sudobility/sudojo_types": "^1.2.67", "tesseract.js": "^5.0.0 || ^6.0.0 || ^7.0.0" } }, "sha512-gULBvEMXcKDyUI3OXOsdEhi7zecAouCeUopfVeLrsy1V8Vz3p7UhhMDsp3bhZ2d+QeSFPuQogiFkPGpE8QW6XA=="],
 
-    "@sudobility/sudojo_types": ["@sudobility/sudojo_types@1.2.66", "", { "peerDependencies": { "@sudobility/types": "^1.9.66" } }, "sha512-11UOVZJ9vBiokwNiaEkLYvIeOAf5ujMnR2j+ZFX1MmfOdfs20tOLuCOe6o4TmeI9iUqYI5G0FaqCoWZjm/dvdA=="],
+    "@sudobility/sudojo_types": ["@sudobility/sudojo_types@1.2.67", "", { "peerDependencies": { "@sudobility/types": "^1.9.67" } }, "sha512-LUEAuqR2HWxv5idPRDBQf231PBHOKnYq9UTYbFGMJmWk/dDmsXJ82+K+p6cG+5ihzel3T9YNVfOaPDzMxF4zmw=="],
 
-    "@sudobility/types": ["@sudobility/types@1.9.66", "", {}, "sha512-eD61iT72sB5+1zJJtM81+eB0YmqEQ0dc/qno0Sw3GYJHcpkbgwN6LYEmiyJzlqtcN9sG5nWuexH9NnBvLODrtw=="],
+    "@sudobility/types": ["@sudobility/types@1.9.67", "", {}, "sha512-d+jk4L9i8VNvOnCJW/craqiiUTPH5aRq4KYe/QBrBU3mCcTfoYjgzzXopVQRcthiZ5dwQAEpdqCTQ0gAWRN6Ww=="],
 
     "@types/bun": ["@types/bun@1.3.8", "", { "dependencies": { "bun-types": "1.3.8" } }, "sha512-3LvWJ2q5GerAXYxO2mffLTqOzEu5qnhEAlh48Vnu8WQfnmSwbgagjGZV6BoHKJztENYEDn6QmVd949W4uESRJA=="],
 
