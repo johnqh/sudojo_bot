@@ -26,7 +26,7 @@ Before deploying, ensure you have:
 1. **Azure Account** - For Bot Framework registration
 2. **Docker** - For containerized deployment
 3. **Domain with SSL** - Required for most chat platforms
-4. **Solver API** - Running instance of sudojo_solver
+4. **Solver API** - Running instance of sudojo_api (its `/api/v1/solver/*` endpoints proxy to sudojo_solver)
 
 ### Required Tools
 
@@ -77,6 +77,10 @@ curl http://localhost:3978/health
 ```
 
 ### Push to Registry
+
+CI does this automatically: a push to `main` with a new `package.json` version publishes
+`$DOCKERHUB_USERNAME/sudojo_bot:<version>` and `:latest` (see `.github/workflows/ci-cd.yml`).
+Manual push:
 
 ```bash
 # Tag for your registry
@@ -133,7 +137,8 @@ Update your `.env`:
 MICROSOFT_APP_ID=your-app-id-from-azure
 MICROSOFT_APP_PASSWORD=your-client-secret
 MICROSOFT_APP_TYPE=SingleTenant
-SOLVER_API_URL=https://solver.sudojo.com
+MICROSOFT_APP_TENANT_ID=your-azure-ad-tenant-id
+SOLVER_API_URL=https://api.sudojo.com   # sudojo_api base URL
 PORT=3978
 ```
 
@@ -413,7 +418,8 @@ This deployment method is compatible with `sudobility_dockerized` scripts.
    MICROSOFT_APP_ID=your-app-id
    MICROSOFT_APP_PASSWORD=your-secret
    MICROSOFT_APP_TYPE=SingleTenant
-   SOLVER_API_URL=https://solver.sudojo.com
+   MICROSOFT_APP_TENANT_ID=your-tenant-id
+   SOLVER_API_URL=https://api.sudojo.com
    ```
 3. Generate Service Token for production environment
 
@@ -495,12 +501,13 @@ sudobility_dockerized/
 
 | Variable | Required | Default | Description |
 |----------|----------|---------|-------------|
-| `PORT` | Yes | `3978` | HTTP server port |
+| `PORT` | No | `3978` | HTTP server port |
 | `MICROSOFT_APP_ID` | Yes | - | Azure Bot app ID |
 | `MICROSOFT_APP_PASSWORD` | Yes | - | Azure Bot client secret |
-| `MICROSOFT_APP_TYPE` | No | `SingleTenant` | Auth type: `SingleTenant` or `UserAssignedMSI` |
-| `SOLVER_API_URL` | Yes | - | URL of sudojo_solver API |
-| `NODE_ENV` | No | `production` | Environment mode |
+| `MICROSOFT_APP_TYPE` | No | `SingleTenant` | Auth type: `SingleTenant`, `MultiTenant`, or `UserAssignedMSI` |
+| `MICROSOFT_APP_TENANT_ID` | For `SingleTenant` | - | Azure AD tenant ID |
+| `SOLVER_API_URL` | Yes (in production) | `http://localhost:3000` | Base URL of **sudojo_api**; the bot calls `/api/v1/solver/solve` and `/api/v1/solver/validate`. Pointing it straight at sudojo_solver gives 404s |
+| `NODE_ENV` | No | `production` (set in Dockerfile) | Not read by the bot code |
 
 ---
 
@@ -547,6 +554,7 @@ sudobility_dockerized/
 3. **Teams image download issues**:
    - Ensure `MICROSOFT_APP_ID` and `MICROSOFT_APP_PASSWORD` are set
    - Check Teams channel is enabled in Azure Bot
+   - Inline images are fetched with the bot's connector token (from the CloudAdapter `ConnectorClient`), so a 401 means the app ID/password or tenant is wrong. File uploads need `supportsFiles: true` in the manifest and are fetched from their pre-authenticated `downloadUrl`
 
 ### SSL Certificate Issues
 
@@ -568,7 +576,9 @@ sudobility_dockerized/
 
 ### High Memory Usage
 
-The OCR engine loads a ~15MB model. If memory is constrained:
+The OCR engine loads the ~5 MB Tesseract `eng.traineddata` model. The image does not bundle it: the
+container downloads it from cdn.jsdelivr.net on the first OCR and caches it in `/app`, so outbound
+network is required. If memory is constrained:
 
 1. Add memory limits to docker-compose.yml:
    ```yaml
@@ -584,6 +594,6 @@ The OCR engine loads a ~15MB model. If memory is constrained:
 
 ## Support
 
-- **Issues**: [GitHub Issues](https://github.com/your-org/sudojo_bot/issues)
+- **Issues**: [GitHub Issues](https://github.com/johnqh/sudojo_bot/issues)
 - **Documentation**: [Sudojo Docs](https://docs.sudojo.com)
 - **Bot Framework**: [Microsoft Docs](https://docs.microsoft.com/en-us/azure/bot-service/)

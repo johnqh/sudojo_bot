@@ -3,47 +3,45 @@ import { SolverService } from './solverService.js';
 import type { SolverBoard } from '@sudobility/sudojo_types';
 
 describe('SolverService', () => {
+  // Completion is judged from the grid alone (full + no repeated digit in any row, column or
+  // box). The solution from sudojo_api can't be used: it arrives AES-encrypted ("enc:...").
   describe('isPuzzleSolved', () => {
     const service = new SolverService('http://localhost:3000');
-    const solution =
-      '534678912672195348198342567859761423426853791713924856961537284287419635345286179';
+    const original =
+      '530070000600195000098000060800060003400803001700020006060000280000419005000080079';
 
-    it('returns true when puzzle is completely solved', () => {
-      const original =
-        '530070000600195000098000060800060003400803001700020006060000280000419005000080079';
+    it('returns true when the merged grid is full and valid', () => {
       const user =
         '004608912072000348100342507059701420026050790013904850901537204287000630345206100';
-      expect(service.isPuzzleSolved(original, user, solution)).toBe(true);
+      expect(service.isPuzzleSolved(original, user)).toBe(true);
     });
 
     it('returns false when puzzle is incomplete', () => {
-      const original =
-        '530070000600195000098000060800060003400803001700020006060000280000419005000080079';
       const user =
         '000000000000000000000000000000000000000000000000000000000000000000000000000000000';
-      expect(service.isPuzzleSolved(original, user, solution)).toBe(false);
+      expect(service.isPuzzleSolved(original, user)).toBe(false);
     });
 
-    it('returns false when puzzle has wrong answer', () => {
-      const original =
-        '530070000600195000098000060800060003400803001700020006060000280000419005000080079';
-      // First user digit is 1 instead of 0 (which would be filled by original 5)
+    it('returns false when a user digit overrides a given with a wrong value', () => {
+      // First user digit is 1 where the given is 5, so row 1 contains two 1s
       const user =
         '100608912072000348100342507059701420026050790013904850901537204287000630345206100';
-      expect(service.isPuzzleSolved(original, user, solution)).toBe(false);
+      expect(service.isPuzzleSolved(original, user)).toBe(false);
     });
 
-    it('correctly merges original and user values', () => {
-      const original =
-        '500000000000000000000000000000000000000000000000000000000000000000000000000000000';
-      const user =
-        '030000000000000000000000000000000000000000000000000000000000000000000000000000000';
-      // Solution starts with 534...
-      const partialSolution =
-        '534678912672195348198342567859761423426853791713924856961537284287419635345286179';
-      // This should be false because user[1]=3 but we need 3 for position 1, and original[0]=5 matches
-      // But position 2 needs 4, user has 0, original has 0
-      expect(service.isPuzzleSolved(original, user, partialSolution)).toBe(false);
+    it('returns false for a full grid that repeats a digit in a box', () => {
+      // Valid rows and columns are not enough: this is a shifted Latin square
+      // (every row and column is a permutation of 1-9) whose boxes repeat digits.
+      const latinSquare = Array.from({ length: 9 }, (_, r) =>
+        Array.from({ length: 9 }, (_, c) => String(((r + c) % 9) + 1)).join('')
+      ).join('');
+      const empty = '0'.repeat(81);
+      expect(service.isPuzzleSolved(empty, latinSquare)).toBe(false);
+    });
+
+    it('treats "." as an empty cell', () => {
+      const user = '.'.repeat(81);
+      expect(service.isPuzzleSolved(original, user)).toBe(false);
     });
   });
 

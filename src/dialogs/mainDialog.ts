@@ -452,13 +452,10 @@ export class MainDialog extends ComponentDialog {
       const imageDataUrl = `data:image/png;base64,${base64Image}`;
 
       // Check if puzzle is complete
-      const isPuzzleComplete =
-        conversationData.currentPuzzle.solution &&
-        this.solverService.isPuzzleSolved(
-          conversationData.currentPuzzle.original,
-          updatedUser,
-          conversationData.currentPuzzle.solution
-        );
+      const isPuzzleComplete = this.solverService.isPuzzleSolved(
+        conversationData.currentPuzzle.original,
+        updatedUser
+      );
 
       // Send applied hint card with board image
       const message = MessageFactory.attachment(

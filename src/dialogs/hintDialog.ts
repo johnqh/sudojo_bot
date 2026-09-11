@@ -80,10 +80,7 @@ export class HintDialog extends ComponentDialog {
   ): Promise<DialogTurnResult> {
     try {
       // Check if puzzle is already complete
-      if (
-        puzzle.solution &&
-        this.solverService.isPuzzleSolved(puzzle.original, puzzle.user, puzzle.solution)
-      ) {
+      if (this.solverService.isPuzzleSolved(puzzle.original, puzzle.user)) {
         const card = createNoHintCard(t('dialog.puzzleAlreadyComplete'));
         await stepContext.context.sendActivity({ attachments: [card] });
         return stepContext.endDialog({

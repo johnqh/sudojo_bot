@@ -9,282 +9,211 @@ This file provides context for AI assistants working on this codebase.
 
 ## Project Overview
 
-`sudojo_bot` is a Microsoft Bot Framework application (v1.0.10) that provides interactive Sudoku puzzle assistance. Users can upload images of Sudoku puzzles, and the bot extracts puzzles via OCR, validates them, and provides step-by-step hints using a solver API.
+`sudojo_bot` (v1.0.48, `private`, BUSL-1.1) is a Microsoft Bot Framework chatbot. A user sends a
+photo of a Sudoku; the bot OCRs it (`@sudobility/sudojo_ocr` + Tesseract.js), validates it through
+the **sudojo_api** solver proxy, then walks through step-by-step hints rendered as PNG boards inside
+Adaptive Cards. It ships as a Docker image only (no npm publish).
 
-**Key Capabilities:**
-- Image upload and OCR puzzle extraction (via `@sudobility/sudojo_ocr`)
-- Puzzle validation against solver API (unique solution check)
-- Step-by-step hint navigation with visual board rendering
-- Multi-channel support (Teams, Web Chat, etc.)
-- Adaptive Card UI for rich interactions
+**Stack:** Bun · TypeScript 5 strict (ESM) · `botbuilder`/`botbuilder-dialogs` 4.23 · restify 11 ·
+`@napi-rs/canvas` · `tesseract.js` 5.1 · i18next 26 · Adaptive Cards 1.5 · ESLint 9 + typescript-eslint 8 · Prettier 3.
 
-## Runtime & Package Manager
+## Commands
 
-**This project uses Bun.** Do not use npm, yarn, or pnpm.
+**Bun only** (Bun 1.3.x locally, `oven/bun:1` in Docker). Do not use npm, yarn, or pnpm.
 
-```bash
-bun install           # Install dependencies
-bun run dev           # Start with watch mode (bun run --watch)
-bun run start         # Production start
-bun run build         # TypeScript compilation (tsc)
-bun run typecheck     # Type checking only (tsc --noEmit)
-bun run lint          # ESLint (src/)
-bun run format        # Prettier formatting (src/)
-bun run test          # Run tests (bun test)
-bun run test:watch    # Run tests in watch mode
-```
+| Command | What it does | Verified |
+|---------|--------------|----------|
+| `bun install` | Install deps | not run |
+| `bun run dev` | `bun run --watch src/index.ts` on port 3978 | not run (long-running) |
+| `bun run start` | `bun run src/index.ts` (same as Docker `CMD`) | not run |
+| `bun run typecheck` | `tsc --noEmit` | passes |
+| `bun run lint` | `eslint src` | passes |
+| `bun run format` | `prettier --write src` | `prettier --check src` clean |
+| `bun run build` | `tsc` → `dist/` (gitignored; runtime uses `src/`, so this is an emit check) | passes |
+| `bun run clean` | `rm -rf dist` | |
+| `bun test src/services src/cards src/state` | **Unit tests only** (74 tests, ~4s warm, offline) | 74 pass |
+| `bun run test` | `bun test` = unit tests **+** `src/test/ocr.integration.test.ts` | 4 fail, see Gotchas |
+| `bun run test:watch` | `bun test --watch` | |
 
-## Tech Stack
-
-- **Runtime**: Bun
-- **Framework**: Microsoft Bot Framework 4.23.x (`botbuilder`, `botbuilder-dialogs`)
-- **HTTP Server**: Restify 11.x
-- **Language**: TypeScript 5.7+ (strict mode, `erasableSyntaxOnly`)
-- **OCR**: `@sudobility/sudojo_ocr` ^1.1.1 + Tesseract.js 5.x
-- **Rendering**: `@napi-rs/canvas` ^0.1.68 (native bindings for board images)
-- **UI**: Adaptive Cards 1.5
-- **Linting**: ESLint 9.x + `typescript-eslint` 8.x
-- **Formatting**: Prettier 3.x
-
-## Project Structure
-
-```
-src/
-├── index.ts                     # Entry point - Restify server, adapter, DI wiring
-├── bot.ts                       # SudokuHintBot class (ActivityHandler)
-├── dialogs/                     # Bot Framework dialog flow
-│   ├── mainDialog.ts            # Root dialog - message routing and all hint/upload logic
-│   ├── hintDialog.ts            # Hint fetching and step navigation (ComponentDialog)
-│   └── puzzleUploadDialog.ts    # Image upload, OCR, validation (WaterfallDialog)
-├── services/                    # Business logic services
-│   ├── ocrService.ts            # Wraps @sudobility/sudojo_ocr for Node.js
-│   ├── solverService.ts         # HTTP client for sudojo_solver API
-│   ├── boardRenderer.ts         # Canvas rendering of boards with hint visualization
-│   └── imageService.ts          # Attachment download (Teams auth, direct download)
-├── cards/                       # Adaptive Card template builders
-│   ├── welcomeCard.ts           # Welcome + help cards
-│   ├── puzzleCard.ts            # Puzzle display + progress cards
-│   └── hintCard.ts              # Hint step, applied, and no-hint cards
-├── state/                       # State management types
-│   └── conversationState.ts     # PuzzleState, HintState, SudokuConversationData
-├── services/*.test.ts           # Unit tests (bun test)
-├── cards/*.test.ts              # Card tests
-└── state/*.test.ts              # State tests
-```
-
-## Key Dependencies
-
-### Sudobility Packages
-- `@sudobility/sudojo_ocr` ^1.1.1 - Sudoku OCR extraction from images
-- `@sudobility/sudojo_types` ^1.2.34 - Solver types (SolverHintStep, SolverHints, SolverBoard, SolverColor, etc.)
-- `@sudobility/types` ^1.9.53 - Generic type definitions (BaseResponse)
-
-### External
-- `botbuilder` ^4.23.1 / `botbuilder-dialogs` ^4.23.1 - Microsoft Bot Framework
-- `restify` ^11.1.0 - HTTP server
-- `@napi-rs/canvas` ^0.1.68 - Native canvas for server-side image rendering
-- `tesseract.js` ^5.1.1 - OCR engine
-
-### Dev Dependencies
-- `@types/bun` latest, `@types/node` ^22.10.0, `@types/restify` ^8.5.12
-- `eslint` ^9.39.2, `typescript-eslint` ^8.54.0
-- `prettier` ^3.8.1, `typescript` ^5.7.2
+No `verify` or `test:unit` script exists. Bun auto-loads `.env` (there is no dotenv dependency).
 
 ## Architecture
 
 ```
-HTTP Request -> Restify Server (index.ts)
-                    |
-              CloudAdapter (Bot Framework auth)
-                    |
-             SudokuHintBot.run() (bot.ts)
-                    |
-              MainDialog.onMessageActivity() handles:
-              |-- Image Upload -> ImageService + OCRService -> SolverService.validate()
-              |-- Confirm Puzzle -> Update conversation state
-              |-- Get Hint -> SolverService.solve() -> BoardRenderer.render()
-              |-- Next/Previous Step -> Navigate hint steps
-              |-- Apply Hint -> SolverService.solve() + applyHint() -> BoardRenderer
-              |-- Show Progress -> BoardRenderer.render()
-              +-- State Management -> ConversationState (MemoryStorage)
+POST /api/messages ─► restify (src/index.ts) ─► CloudAdapter (ConfigurationBotFrameworkAuthentication)
+                                                   │
+                                     SudokuHintBot.run()  (src/bot.ts, ActivityHandler)
+                                     ├─ onMembersAdded ─► createWelcomeCard()
+                                     └─ onMessage ─► MainDialog.onMessageActivity(ctx, data) ─► new data
+                                                        │ (plain method call, NOT the dialog stack)
+          ┌─────────────────────────────────────────────┼──────────────────────────────┐
+  attachment: ImageService.downloadAttachment   text / card action:              BoardRenderer.render()
+            → OCRService.extractPuzzle            SolverService.solve()          (@napi-rs/canvas, 450px PNG,
+            → OCRService.validatePuzzle            GET {SOLVER_API_URL}/api/v1/solver/solve     inlined as a
+            → SolverService.validate()             GET {SOLVER_API_URL}/api/v1/solver/validate  data: URL)
+GET /health ─► 200 { status, name } (strings from i18n)
+State: MemoryStorage → ConversationState property "SudokuConversationData" (lost on restart)
 ```
 
-### Dialog Architecture
+- **Only `MainDialog.onMessageActivity()` is live.** `MainDialog.run()` is never called, so these
+  are dormant code: `HintDialog`, `PuzzleUploadDialog` (both registered via `addDialog`), the intro
+  waterfall, and the card builders that only they use (`createHintStepCard`, `createHintAppliedCard`,
+  `createNoHintCard`). The live hint step, applied, and progress cards are built inline in
+  `mainDialog.ts`. `createProgressCard` is unused.
+- `UserState` is created and saved each turn but never written (`SudokuUserData` is unused).
+- All user-facing strings go through i18next `t()` (`src/i18n/index.ts`; English only, `src/i18n/locales/en.json`).
 
-The bot uses **two dialog patterns**:
-1. **MainDialog** (primary) - Handles most interactions directly via `onMessageActivity()`, bypassing the traditional waterfall dialog flow for responsiveness. Routes text commands, card actions, and image uploads.
-2. **HintDialog** / **PuzzleUploadDialog** - ComponentDialogs registered as children but primarily used for structured multi-step flows (waterfall pattern with prompts).
+### Message routing (`src/dialogs/mainDialog.ts`)
 
-### State Structure
+| Input (text is lowercased and trimmed) | Handler |
+|-------|---------|
+| any attachment | `handleImageUpload`: OCR → validate → puzzle card with confirm/reject |
+| `help`, `?` | help card |
+| `new`, `new puzzle`, `start` / action `new_puzzle`, `reject_puzzle` | reset state |
+| `hint`, `get hint` / action `get_hint` | `solve()` → step 1 card (re-sends puzzle card if not yet confirmed) |
+| `next`, `next step` / action `next_step` | next step |
+| action `previous_step` (no text equivalent) | previous step |
+| `apply`, `apply hint` / action `apply_hint` | re-`solve()`, take `board.user` + pencilmarks |
+| `status`, `progress` / action `show_progress` | progress card |
+| action `confirm_puzzle` / `upload` | set `puzzleConfirmed` / ask for a photo |
+| anything else | welcome card (no puzzle) or default prompt |
 
-```typescript
-interface SudokuConversationData {
-  currentPuzzle: PuzzleState | null;  // Active puzzle
-  currentHint: HintState | null;      // Active hint session
-  puzzleConfirmed: boolean;           // Whether user confirmed OCR result
-}
+Card buttons are `Action.Submit` with `data: { action }`, read from `context.activity.value.action`.
 
-interface PuzzleState {
-  original: string;      // 81-char original puzzle ('0' = empty)
-  user: string;          // 81-char user progress ('0' = no input)
-  solution?: string;     // 81-char solution from solver
-  confidence: number;    // OCR confidence (0-100)
-}
+### State (`src/state/conversationState.ts`)
 
-interface HintState {
-  steps: SolverHintStep[];    // Hint steps from solver
-  currentStepIndex: number;   // Currently displayed step
-  technique: string;          // Human-readable technique name
-  level: number;              // Difficulty level
-}
+- `SudokuConversationData { currentPuzzle: PuzzleState | null; currentHint: HintState | null; puzzleConfirmed }`
+- `PuzzleState { original, user, solution?, confidence, pencilmarks?, autopencil? }`: 81-char strings
+  with `'0'` = empty. `pencilmarks` is 81 comma-separated entries.
+- `HintState { steps: SolverHintStep[], currentStepIndex, technique (name), level }`
+
+Handlers return the conversation data (a new object when it changed); `bot.ts` stores it and `run()` saves state.
+
+## Directory Map
+
 ```
-
-### Board Rendering
-
-`BoardRenderer` renders Sudoku boards to PNG using `@napi-rs/canvas`:
-- Default size: 450x450 pixels
-- Supports light/dark color palettes
-- Hint visualization: cell backgrounds, borders, pencilmarks, group outlines, chain links
-- Outputs base64-encoded PNG for inline Adaptive Card images
+src/
+├── index.ts               # restify server, adapter, storage, DI wiring, /health
+├── bot.ts                 # SudokuHintBot (ActivityHandler)
+├── dialogs/               # mainDialog.ts (live); hintDialog.ts, puzzleUploadDialog.ts (dormant)
+├── services/              # ocrService, solverService, imageService, boardRenderer (+ *.test.ts)
+├── cards/                 # welcomeCard, puzzleCard, hintCard (+ *.test.ts)
+├── state/                 # conversationState.ts (+ test)
+├── i18n/                  # i18next init + locales/en.json
+└── test/                  # ocr.integration.test.ts + fixtures/*.jpg|png
+eng.traineddata            # Tesseract LSTM model (~5 MB, committed), read from CWD (see Gotchas)
+Dockerfile                 # 3-stage oven/bun build; runs `bun run src/index.ts`
+.github/workflows/ci-cd.yml# calls johnqh/workflows unified-cicd.yml
+docs/DEPLOYMENT.md         # Azure Bot + channel setup, Docker, sudobility_dockerized/Traefik
+plans/IMPROVEMENTS.md      # improvement backlog
+```
 
 ## Environment Variables
 
-Required variables (see `.env.example`):
+See `.env.example`.
 
-```bash
-# Bot Framework (from Azure Bot Registration)
-MICROSOFT_APP_ID=           # Azure Bot app ID
-MICROSOFT_APP_PASSWORD=     # Azure Bot app secret
-MICROSOFT_APP_TYPE=SingleTenant  # Default: SingleTenant
-MICROSOFT_APP_TENANT_ID=    # Azure AD tenant ID
+| Name | Code default | Notes |
+|------|--------------|-------|
+| `MICROSOFT_APP_ID` | none | Azure Bot app ID; leave blank for local Emulator |
+| `MICROSOFT_APP_PASSWORD` | none | client secret; never log it |
+| `MICROSOFT_APP_TYPE` | `SingleTenant` | |
+| `MICROSOFT_APP_TENANT_ID` | none | required for `SingleTenant` |
+| `SOLVER_API_URL` | `http://localhost:3000` | base URL of **sudojo_api**, not the C# solver |
+| `PORT` | `3978` | |
 
-# Solver API
-SOLVER_API_URL=http://localhost:3000  # Sudojo solver endpoint
+The Docker image sets `NODE_ENV=production`, but the code never reads it.
 
-# Server
-PORT=3978                   # HTTP server port (default: 3978)
-```
+## Sibling Repos & Contracts
 
-## API Endpoints
+| Sibling | Contract |
+|---------|----------|
+| `@sudobility/sudojo_ocr` `^1.1.42` | `extractSudokuFromImage`, `createNodeAdapter` (from the `/node` subpath). Options in `ocrService.ts`: `cellMargin: 0.03`, `minConfidence: 1`, `preprocess: true`, `recognizePencilmarks: true` |
+| `@sudobility/sudojo_types` `^1.2.67` | `SolveData`, `ValidateData`, `SolverBoard`, `SolverHints`, `SolverHintStep`, `SolverColor`, `getTechniqueNameById` |
+| `@sudobility/types` `^1.9.67` | `BaseResponse<T>` envelope `{ success, data, error }` |
+| **sudojo_api** (runtime) | `GET /api/v1/solver/solve?original&user&autopencilmarks[&pencilmarks]`, `GET /api/v1/solver/validate?original`. sudojo_api proxies both to **sudojo_solver** `/api/solve` and `/api/validate`. It listens on port 3000 by default. The bot sends no `Authorization` or `X-API-Key` header, so sudojo_api treats it as an anonymous client |
+| sudojo_app `scripts/push_all.sh` | releases `sudojo_bot` last in the sudojo family and bumps the `@sudobility/*` deps and the version. That produces the `chore: update @sudobility dependencies…` commits |
 
-| Endpoint | Method | Description |
-|----------|--------|-------------|
-| `/api/messages` | POST | Bot Framework messaging endpoint |
-| `/health` | GET | Health check (returns 200 OK with name) |
+Nothing depends on this repo.
 
-## TypeScript Configuration
+## CI/CD & Release
 
-- Target: ES2022
-- Module: ESNext with bundler resolution
-- Strict mode with all linting flags enabled
-- `verbatimModuleSyntax` and `erasableSyntaxOnly` enabled
-- Output: `./dist` with declarations and source maps
+`.github/workflows/ci-cd.yml` calls `johnqh/workflows/.github/workflows/unified-cicd.yml@main` with
+`docker-image-name: sudojo_bot` and `skip-npm-publish: true`. The workflow runs typecheck, lint,
+`bun run test`, and build.
 
-## Code Patterns
+- **`develop`:** tests only.
+- **`main`:** if the `package.json` version has no tag yet, it creates a GitHub release and pushes
+  `$DOCKERHUB_USERNAME/sudojo_bot:<version>` and `:latest`.
 
-### Type-Only Imports (Required by `verbatimModuleSyntax`)
-```typescript
-import { ComponentDialog, type DialogTurnResult } from 'botbuilder-dialogs';
-```
+Hosting goes through `sudobility_dockerized` (see docs/DEPLOYMENT.md).
 
-### Unused Parameters
-```typescript
-// Prefix with underscore (required by noUnusedParameters)
-private async handleAction(_context: TurnContext): Promise<void> { }
-```
+## Conventions
 
-### Error Handling
-```typescript
-try {
-  const result = await this.solverService.solve(puzzle);
-} catch (error) {
-  console.error('Error getting hint:', error);
-  await context.sendActivity('Sorry, I had trouble. Please try again.');
-  return conversationData;
-}
-```
+- ESM (`"type": "module"`). Relative imports use a `.js` suffix (`'./bot.js'`).
+- `verbatimModuleSyntax` + `erasableSyntaxOnly`: use `import type` or inline `type` specifiers. No
+  enums, namespaces, or constructor parameter properties.
+- Prefix unused params/vars with `_` (tsc `noUnusedParameters` + the ESLint `no-unused-vars` rule).
+- Prettier: single quotes, 100 columns, 2 spaces, `arrowParens: avoid`, LF.
+- Tests use `bun:test` and sit next to the source as `*.test.ts`. Solver tests stub `globalThis.fetch`.
+- User-facing text goes in `en.json`. Read it with `t('section.key', { vars })`.
 
-### Adaptive Card Actions
-Card buttons use `Action.Submit` with `data: { action: 'action_name' }`, routed through `handleCardAction()` in MainDialog.
+## Gotchas
 
-## Testing
+- **`bun run test` is slow and fails locally.** It includes the OCR integration test: the 3 digit
+  tests pass, but each of the 4 pencilmark tests times out at 120s (~9.5 min total). CI runs the
+  same `bun run test`. For a fast loop, use `bun test src/services src/cards src/state`.
+- **Tesseract model:** tesseract.js loads `./eng.traineddata` from the **process CWD**. If the file is
+  missing, it downloads the model from cdn.jsdelivr.net and writes it to the CWD. The Dockerfile does
+  not copy `eng.traineddata`, so the container fetches it on its first OCR and needs outbound network.
+- **`SOLVER_API_URL` must point at sudojo_api.** Pointing it straight at sudojo_solver returns 404s,
+  because the solver serves `/api/solve`, not `/api/v1/solver/solve`.
+- **"Apply" doesn't replay the stored hint.** It re-runs `solve()` on the same state and uses the
+  solver's `board.user`. `SolverService.applyHint()` ignores its `_user` argument.
+- `validate()` maps any non-success response to `{ valid: false }`, which the user sees as "no unique
+  solution". `solve()` throws instead. Network errors throw from both.
+- An upload uses the first attachment whose `contentType` is `image/*` or `application/octet-stream`,
+  or a Teams file upload (`application/vnd.microsoft.teams.file.download.info`) with an image
+  `fileType`. The file upload is fetched from its pre-authenticated `content.downloadUrl`.
+- **Attachment auth (`imageService.ts`):** on `msteams` only, a `contentUrl` on the activity's
+  `serviceUrl` origin, `smba.trafficmanager.net`, `*.teams.microsoft.com`, or `*.asm.skype.com` gets
+  the bot's connector token. The token comes from `connectorClient.credentials.signRequest()`, where
+  `connectorClient` is the ConnectorClient that CloudAdapter puts in `turnState` under
+  `adapter.ConnectorClientKey`. Hosts are matched on the parsed hostname. Every other URL is fetched
+  without auth.
+- Board text uses `system-ui`/`sans-serif`. `oven/bun:1-slim` installs no font packages, so digits
+  may not render in the container (unverified).
+- `BoardRenderer` supports `darkMode`, but no caller sets it.
+- **"Solved" is judged from the grid, not the solution.** `SolverService.isPuzzleSolved(original, user)`
+  returns true when the merged grid is full and every row, column and box holds 1-9 once. Don't compare
+  against `PuzzleState.solution`: sudojo_api encrypts it (`enc:` + base64 AES-256-GCM, fresh nonce per
+  response) whenever `SOLUTION_ENCRYPTION_KEY` is set.
 
-Tests use Bun's built-in test runner (`bun test`). Test files are colocated with source:
-- `src/services/ocrService.test.ts`
-- `src/services/solverService.test.ts`
-- `src/services/boardRenderer.test.ts`
-- `src/services/imageService.test.ts`
-- `src/cards/puzzleCard.test.ts`
-- `src/cards/hintCard.test.ts`
-- `src/state/conversationState.test.ts`
+## Known Issues (reported, not fixed)
+
+- `HintDialog` (dormant) calls `solve()` without pencilmarks, unlike `MainDialog`.
+- `plans/IMPROVEMENTS.md` has the backlog: persistent storage, rate limiting, extracting the inline
+  cards from `mainDialog.ts`, and more.
 
 ## Common Tasks
 
-### Add New Dialog
-1. Create dialog class in `src/dialogs/`
-2. Extend `ComponentDialog`
-3. Register in `MainDialog` with `this.addDialog()`
-4. Add routing logic in `MainDialog.onMessageActivity()`
+- **New command or action:** add a branch in `onMessageActivity()` and/or a `case` in
+  `handleCardAction()`. Return the updated `SudokuConversationData`, and put the strings in `en.json`.
+- **New card:** write a builder in `src/cards/` that returns
+  `CardFactory.adaptiveCard({ ..., version: '1.5' })`. Send it with
+  `context.sendActivity({ attachments: [card] })`.
+- **Hint visuals:** edit `src/services/boardRenderer.ts`. The entry point is
+  `render(original, user, { hintStep })`, and the helpers are `buildHintCellMap`, `drawHintGroups`,
+  and `drawHintLinks`. `getHintColor()` maps `SolverColor` to the palette.
+- **Solver params:** edit `src/services/solverService.ts` and keep it in sync with sudojo_api
+  `src/routes/solver.ts`.
 
-### Add New Card
-1. Create function in `src/cards/`
-2. Use `CardFactory.adaptiveCard()` for Adaptive Cards
-3. Return `Attachment` type
-4. Send via `context.sendActivity({ attachments: [card] })`
+## Local Debugging
 
-### Modify Hint Visualization
-- Edit `src/services/boardRenderer.ts`
-- Key methods: `render()`, `drawHintGroups()`, `drawHintLinks()`
-- Color palette mapping: `getHintColor()` maps SolverColor to palette colors
-
-### Add New Service Integration
-1. Create service class in `src/services/`
-2. Inject via constructor in dialogs/bot
-3. Handle errors gracefully with user feedback messages
-
-## Docker Deployment
-
-```bash
-docker build -t sudojo_bot .
-docker run -p 3978:3978 --env-file .env sudojo_bot
-```
-
-## Debugging
-
-### Bot Framework Emulator
-1. Download from https://github.com/Microsoft/BotFramework-Emulator
-2. Connect to `http://localhost:3978/api/messages`
-3. Leave App ID/Password blank for local testing
-
-### Common Issues
-
-**OCR not extracting correctly:**
-- Ensure clear, well-lit image with puzzle filling most of the frame
-- Check `ocrService.ts` default config: `cellMargin: 0.154`, `minConfidence: 1`
-- OCR retries with dilation for thin strokes (8s, 9s)
-
-**Hints not loading:**
-- Verify `SOLVER_API_URL` is correct and solver is running
-- API path: `/api/v1/solver/solve?original=...&user=...`
-- Check `solverService.ts` error handling
-
-**Teams images not downloading:**
-- Ensure `MICROSOFT_APP_ID` and `MICROSOFT_APP_PASSWORD` are set
-- Check `imageService.ts` Teams authentication (uses `BotAccessToken` from turn state)
-
-## Performance Notes
-
-- `@napi-rs/canvas` requires native bindings (platform-specific)
-- Tesseract.js loads ~15MB model on first use (lazy-loaded in `OCRService.init()`)
-- Board rendering is CPU-intensive (~50-100ms per render)
-- State stored in `MemoryStorage` (lost on restart - not persistent)
-
-## Security Considerations
-
-- Never log `MICROSOFT_APP_PASSWORD`
-- Validate all image uploads before processing
-- Sanitize puzzle strings (81 chars, digits 0-9 only)
-- Rate limit API calls to solver service
+1. Start sudojo_api on `:3000`.
+2. Run `bun run dev`.
+3. Open the [Bot Framework Emulator](https://github.com/Microsoft/BotFramework-Emulator) and connect
+   to `http://localhost:3978/api/messages`. Leave the App ID/password blank, and keep the
+   `MICROSOFT_APP_*` env vars empty.
 
 ## Git Workflow
 

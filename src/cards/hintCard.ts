@@ -78,7 +78,9 @@ export function createHintStepCard(
   technique: string,
   level: number
 ): Attachment {
-  const grid = formatHintGrid(original, user, step.cells);
+  // cells is null on the solver's auto-pencilmark hint (technique 0)
+  const cells = step.cells ?? [];
+  const grid = formatHintGrid(original, user, cells);
 
   const body: unknown[] = [
     {
@@ -112,7 +114,7 @@ export function createHintStepCard(
   ];
 
   // Add grid visualization if there are cells to highlight
-  if (step.cells.length > 0) {
+  if (cells.length > 0) {
     body.push({
       type: 'TextBlock',
       text: grid,

@@ -56,6 +56,21 @@ describe('hintCard', () => {
       expect(techniqueBlock.text).toContain('Level 3');
     });
 
+    it('handles the auto-pencilmark hint, whose areas and cells are null', () => {
+      // sudojo_solver sends areas/cells = null for the technique-0 "Pencilmarks" hint,
+      // which the bot can receive because it requests hints with autopencilmarks=false.
+      const autopencilStep = {
+        title: 'Pencilmarks',
+        text: 'Turn on auto pencilmarks to continue.',
+        areas: null,
+        cells: null,
+      } as unknown as SolverHintStep;
+
+      const card = createHintStepCard(autopencilStep, 0, 1, original, user, 'Pencilmarks', 0);
+      const texts = card.content.body.map((b: { text?: string }) => b.text);
+      expect(texts).toContain('Turn on auto pencilmarks to continue.');
+    });
+
     it('displays step counter', () => {
       const card = createHintStepCard(step, 1, 4, original, user, 'Naked Single', 1);
       const body = card.content.body;

@@ -7,14 +7,15 @@ Microsoft Bot Framework chatbot that helps users solve Sudoku puzzles through im
 ```bash
 bun install
 cp .env.example .env
-# Configure MICROSOFT_APP_ID, MICROSOFT_APP_PASSWORD, SOLVER_API_URL
+# Configure MICROSOFT_APP_ID, MICROSOFT_APP_PASSWORD, MICROSOFT_APP_TENANT_ID,
+# and SOLVER_API_URL (base URL of sudojo_api, default http://localhost:3000)
 bun run dev          # Start with hot reload (port 3978)
 ```
 
 ## Features
 
 - Upload a photo of any Sudoku puzzle
-- Automatic OCR extraction via Tesseract
+- Automatic OCR extraction via Tesseract (digits and pencilmarks)
 - Puzzle validation (unique solution check)
 - Step-by-step hints teaching solving techniques
 - Visual board rendering with highlighted cells
@@ -23,8 +24,8 @@ bun run dev          # Start with hot reload (port 3978)
 ## Usage
 
 1. Download [Bot Framework Emulator](https://github.com/Microsoft/BotFramework-Emulator/releases)
-2. Start the bot: `bun run dev`
-3. Connect to `http://localhost:3978/api/messages`
+2. Start sudojo_api (the bot calls its `/api/v1/solver/*` endpoints), then the bot: `bun run dev`
+3. Connect to `http://localhost:3978/api/messages` (leave App ID/password blank)
 
 ## Routes
 
@@ -40,7 +41,9 @@ bun run dev          # Start with hot reload
 bun run build        # TypeScript compilation
 bun run typecheck    # Type checking
 bun run lint         # ESLint
-bun run test         # Run tests (bun test)
+bun run format       # Prettier (writes src/)
+bun test src/services src/cards src/state   # Unit tests (fast, offline)
+bun run test         # All tests, incl. slow OCR integration tests
 ```
 
 ## Docker
@@ -54,7 +57,7 @@ docker run -p 3978:3978 --env-file .env sudojo_bot
 
 - `@sudobility/sudojo_ocr` -- OCR library for puzzle extraction
 - `@sudobility/sudojo_types` -- Solver types for hint data
-- `sudojo_solver` -- Solver API for hints and validation
+- `sudojo_api` -- Backend whose `/api/v1/solver/*` endpoints (proxied to `sudojo_solver`) provide hints and validation
 
 ## License
 

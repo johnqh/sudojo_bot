@@ -95,15 +95,37 @@ export class SolverService {
   }
 
   /**
-   * Check if a puzzle is completely solved
-   * @param original - Original puzzle
-   * @param user - User's current input
-   * @param solution - Known solution
+   * Check if a puzzle is completely solved: every cell of the merged grid (user input over the
+   * givens) is filled and no row, column or box repeats a digit. For a puzzle with a unique
+   * solution that grid IS the solution, so no stored solution is needed - which matters because
+   * sudojo_api returns `solution` AES-encrypted.
+   * @param original - Original puzzle (givens)
+   * @param user - User's current input ('0' or '.' = empty)
    */
-  isPuzzleSolved(original: string, user: string, solution: string): boolean {
+  isPuzzleSolved(original: string, user: string): boolean {
+    const grid: number[] = [];
     for (let i = 0; i < 81; i++) {
-      const actual = user[i] !== '0' ? user[i] : original[i];
-      if (actual !== solution[i]) {
+      const cell = user[i] && user[i] !== '0' && user[i] !== '.' ? user[i] : original[i];
+      const digit = cell ? cell.charCodeAt(0) - 48 : 0;
+      if (digit < 1 || digit > 9) {
+        return false;
+      }
+      grid.push(digit);
+    }
+
+    for (let unit = 0; unit < 9; unit++) {
+      const boxRow = Math.floor(unit / 3) * 3;
+      const boxCol = (unit % 3) * 3;
+      let rowSeen = 0;
+      let colSeen = 0;
+      let boxSeen = 0;
+      for (let k = 0; k < 9; k++) {
+        rowSeen |= 1 << grid[unit * 9 + k];
+        colSeen |= 1 << grid[k * 9 + unit];
+        boxSeen |= 1 << grid[(boxRow + Math.floor(k / 3)) * 9 + boxCol + (k % 3)];
+      }
+      const allDigits = 0b1111111110;
+      if (rowSeen !== allDigits || colSeen !== allDigits || boxSeen !== allDigits) {
         return false;
       }
     }
