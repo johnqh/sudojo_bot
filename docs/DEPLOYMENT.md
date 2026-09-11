@@ -576,9 +576,9 @@ sudobility_dockerized/
 
 ### High Memory Usage
 
-The OCR engine loads the ~5 MB Tesseract `eng.traineddata` model. The image does not bundle it: the
-container downloads it from cdn.jsdelivr.net on the first OCR and caches it in `/app`, so outbound
-network is required. If memory is constrained:
+OCR runs server-side in sudojo_api (`POST /api/v1/ocr/extract`), so the container bundles no OCR
+engine or model file and only needs network access to `SOLVER_API_URL`. Board rendering
+(`@napi-rs/canvas`) is the remaining memory consumer. If memory is constrained:
 
 1. Add memory limits to docker-compose.yml:
    ```yaml
@@ -587,8 +587,6 @@ network is required. If memory is constrained:
        limits:
          memory: 512M
    ```
-
-2. Consider using a shared OCR service instead of per-container
 
 ---
 

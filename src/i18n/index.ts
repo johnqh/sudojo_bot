@@ -5,16 +5,24 @@
 
 import i18next from 'i18next';
 import en from './locales/en.json' with { type: 'json' };
+// Per-step hint headings, synced from sudojo_app (`bun run sync:hint-headings`).
+import enHeadings from './locales/en.headings.json' with { type: 'json' };
+
+/** Namespace holding the per-step hint headings (see src/cards/hintHeading.ts). */
+export const HEADINGS_NS = 'headings';
 
 i18next.init({
   lng: 'en',
   fallbackLng: 'en',
+  ns: ['translation', HEADINGS_NS],
+  defaultNS: 'translation',
   interpolation: {
     escapeValue: false,
   },
   resources: {
     en: {
       translation: en,
+      [HEADINGS_NS]: enHeadings,
     },
   },
 });

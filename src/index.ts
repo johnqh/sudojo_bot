@@ -53,8 +53,9 @@ const storage = new MemoryStorage();
 const conversationState = new ConversationState(storage);
 const userState = new UserState(storage);
 
-// Services
-const ocrService = new OCRService();
+// Services (OCR and the solver are both served by sudojo_api at SOLVER_API_URL;
+// the OCR endpoint is unauthenticated, hence the empty token)
+const ocrService = new OCRService(SOLVER_API_URL, '');
 const solverService = new SolverService(SOLVER_API_URL);
 
 // Main dialog

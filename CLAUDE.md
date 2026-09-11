@@ -10,12 +10,12 @@ This file provides context for AI assistants working on this codebase.
 ## Project Overview
 
 `sudojo_bot` (v1.0.48, `private`, BUSL-1.1) is a Microsoft Bot Framework chatbot. A user sends a
-photo of a Sudoku; the bot OCRs it (`@sudobility/sudojo_ocr` + Tesseract.js), validates it through
-the **sudojo_api** solver proxy, then walks through step-by-step hints rendered as PNG boards inside
-Adaptive Cards. It ships as a Docker image only (no npm publish).
+photo of a Sudoku; the bot sends it to **sudojo_api** for OCR (`POST /api/v1/ocr/extract`), validates
+it through the same API's solver proxy, then walks through step-by-step hints rendered as PNG boards
+inside Adaptive Cards. There is no local OCR engine. It ships as a Docker image only (no npm publish).
 
 **Stack:** Bun · TypeScript 5 strict (ESM) · `botbuilder`/`botbuilder-dialogs` 4.23 · restify 11 ·
-`@napi-rs/canvas` · `tesseract.js` 5.1 · i18next 26 · Adaptive Cards 1.5 · ESLint 9 + typescript-eslint 8 · Prettier 3.
+`@napi-rs/canvas` · `@sudobility/sudojo_client` · i18next 26 · Adaptive Cards 1.5 · ESLint 9 + typescript-eslint 8 · Prettier 3.
 
 ## Commands
 
@@ -31,9 +31,9 @@ Adaptive Cards. It ships as a Docker image only (no npm publish).
 | `bun run format` | `prettier --write src` | `prettier --check src` clean |
 | `bun run build` | `tsc` → `dist/` (gitignored; runtime uses `src/`, so this is an emit check) | passes |
 | `bun run clean` | `rm -rf dist` | |
-| `bun test src/services src/cards src/state` | **Unit tests only** (74 tests, ~4s warm, offline) | 74 pass |
-| `bun run test` | `bun test` = unit tests **+** `src/test/ocr.integration.test.ts` | 4 fail, see Gotchas |
+| `bun run test` | `bun test` — all tests are fast unit tests (81 tests, ~1s, offline) | 81 pass |
 | `bun run test:watch` | `bun test --watch` | |
+| `bun run sync:hint-headings` | Copies the `headings` tree from `../sudojo_app/public/locales/en/hints.json` into `src/i18n/locales/en.headings.json` (optional arg: another hints.json path) | passes |
 
 No `verify` or `test:unit` script exists. Bun auto-loads `.env` (there is no dotenv dependency).
 
@@ -49,8 +49,9 @@ POST /api/messages ─► restify (src/index.ts) ─► CloudAdapter (Configurat
           ┌─────────────────────────────────────────────┼──────────────────────────────┐
   attachment: ImageService.downloadAttachment   text / card action:              BoardRenderer.render()
             → OCRService.extractPuzzle            SolverService.solve()          (@napi-rs/canvas, 450px PNG,
-            → OCRService.validatePuzzle            GET {SOLVER_API_URL}/api/v1/solver/solve     inlined as a
-            → SolverService.validate()             GET {SOLVER_API_URL}/api/v1/solver/validate  data: URL)
+              POST {SOLVER_API_URL}/api/v1/ocr/extract  GET {SOLVER_API_URL}/api/v1/solver/solve   inlined as a
+            → OCRService.validatePuzzle            GET {SOLVER_API_URL}/api/v1/solver/validate  data: URL)
+            → SolverService.validate()
 GET /health ─► 200 { status, name } (strings from i18n)
 State: MemoryStorage → ConversationState property "SudokuConversationData" (lost on restart)
 ```
@@ -62,6 +63,12 @@ State: MemoryStorage → ConversationState property "SudokuConversationData" (lo
   `mainDialog.ts`. `createProgressCard` is unused.
 - `UserState` is created and saved each turn but never written (`SudokuUserData` is unused).
 - All user-facing strings go through i18next `t()` (`src/i18n/index.ts`; English only, `src/i18n/locales/en.json`).
+- **Per-step hint headings** live in a second i18next namespace, `headings` (`src/i18n/locales/en.headings.json`),
+  a copy of the `headings` tree in sudojo_app's en `hints.json`. Don't hand-edit it; run `bun run sync:hint-headings`.
+  `getStepHeading(step)` (`src/cards/hintHeading.ts`) maps the step's `hints.<path>` key (`localization.text`, or the
+  legacy flat `localization`) to `<path>` in that namespace, fills `{{valueN}}` from `values[N-1]` (missing → `''`),
+  and returns `''` when there's no leaf heading. The live card (`sendHintStepWithImage`) adds it as a bold line above
+  `step.text` when non-empty; the dormant `createHintStepCard` shows it in place of `step.title`, falling back to the title.
 
 ### Message routing (`src/dialogs/mainDialog.ts`)
 
@@ -96,14 +103,13 @@ src/
 ├── index.ts               # restify server, adapter, storage, DI wiring, /health
 ├── bot.ts                 # SudokuHintBot (ActivityHandler)
 ├── dialogs/               # mainDialog.ts (live); hintDialog.ts, puzzleUploadDialog.ts (dormant)
-├── services/              # ocrService, solverService, imageService, boardRenderer (+ *.test.ts)
-├── cards/                 # welcomeCard, puzzleCard, hintCard (+ *.test.ts)
+├── services/              # ocrService, solverService, imageService, boardRenderer, networkClient (+ *.test.ts)
+├── cards/                 # welcomeCard, puzzleCard, hintCard (+ *.test.ts); hintHeading.ts (getStepHeading)
 ├── state/                 # conversationState.ts (+ test)
-├── i18n/                  # i18next init + locales/en.json
-└── test/                  # ocr.integration.test.ts + fixtures/*.jpg|png
-eng.traineddata            # Tesseract LSTM model (~5 MB, committed), read from CWD (see Gotchas)
+└── i18n/                  # i18next init + locales/en.json; locales/en.headings.json (SYNCED, `headings` ns)
 Dockerfile                 # 3-stage oven/bun build; runs `bun run src/index.ts`
 .github/workflows/ci-cd.yml# calls johnqh/workflows unified-cicd.yml
+scripts/sync-hint-headings.cjs # copies the en `headings` tree from ../sudojo_app
 docs/DEPLOYMENT.md         # Azure Bot + channel setup, Docker, sudobility_dockerized/Traefik
 plans/IMPROVEMENTS.md      # improvement backlog
 ```
@@ -127,10 +133,10 @@ The Docker image sets `NODE_ENV=production`, but the code never reads it.
 
 | Sibling | Contract |
 |---------|----------|
-| `@sudobility/sudojo_ocr` `^1.1.42` | `extractSudokuFromImage`, `createNodeAdapter` (from the `/node` subpath). Options in `ocrService.ts`: `cellMargin: 0.03`, `minConfidence: 1`, `preprocess: true`, `recognizePencilmarks: true` |
+| `@sudobility/sudojo_client` `^0.0.153` | `SudojoClient.extractOcr(token, base64Image)` → `POST /api/v1/ocr/extract`, imported from the React-free **`/network` subpath** (the package root pulls in React Query hooks). Its constructor takes a `NetworkClient`; the bot's is `src/services/networkClient.ts` (`FetchNetworkClient`) |
 | `@sudobility/sudojo_types` `^1.2.67` | `SolveData`, `ValidateData`, `SolverBoard`, `SolverHints`, `SolverHintStep`, `SolverColor`, `getTechniqueNameById` |
 | `@sudobility/types` `^1.9.67` | `BaseResponse<T>` envelope `{ success, data, error }` |
-| **sudojo_api** (runtime) | `GET /api/v1/solver/solve?original&user&autopencilmarks[&pencilmarks]`, `GET /api/v1/solver/validate?original`. sudojo_api proxies both to **sudojo_solver** `/api/solve` and `/api/validate`. It listens on port 3000 by default. The bot sends no `Authorization` or `X-API-Key` header, so sudojo_api treats it as an anonymous client |
+| **sudojo_api** (runtime) | `GET /api/v1/solver/solve?original&user&autopencilmarks[&pencilmarks]`, `GET /api/v1/solver/validate?original`, and `POST /api/v1/ocr/extract` `{ image }` (base64, no `data:` prefix) → `{ board, confidence, digitCount }`. sudojo_api proxies the solver calls to **sudojo_solver** `/api/solve` and `/api/validate`, and runs OCR through sudojo_ocr_ml with its own Tesseract fallback. It listens on port 3000 by default. The bot sends no `Authorization` or `X-API-Key` header (the OCR token is `''`), so sudojo_api treats it as an anonymous client |
 | sudojo_app `scripts/push_all.sh` | releases `sudojo_bot` last in the sudojo family and bumps the `@sudobility/*` deps and the version. That produces the `chore: update @sudobility dependencies…` commits |
 
 Nothing depends on this repo.
@@ -154,19 +160,20 @@ Hosting goes through `sudobility_dockerized` (see docs/DEPLOYMENT.md).
   enums, namespaces, or constructor parameter properties.
 - Prefix unused params/vars with `_` (tsc `noUnusedParameters` + the ESLint `no-unused-vars` rule).
 - Prettier: single quotes, 100 columns, 2 spaces, `arrowParens: avoid`, LF.
-- Tests use `bun:test` and sit next to the source as `*.test.ts`. Solver tests stub `globalThis.fetch`.
+- Tests use `bun:test` and sit next to the source as `*.test.ts`. Solver and OCR tests stub
+  `globalThis.fetch`.
 - User-facing text goes in `en.json`. Read it with `t('section.key', { vars })`.
 
 ## Gotchas
 
-- **`bun run test` is slow and fails locally.** It includes the OCR integration test: the 3 digit
-  tests pass, but each of the 4 pencilmark tests times out at 120s (~9.5 min total). CI runs the
-  same `bun run test`. For a fast loop, use `bun test src/services src/cards src/state`.
-- **Tesseract model:** tesseract.js loads `./eng.traineddata` from the **process CWD**. If the file is
-  missing, it downloads the model from cdn.jsdelivr.net and writes it to the CWD. The Dockerfile does
-  not copy `eng.traineddata`, so the container fetches it on its first OCR and needs outbound network.
+- **OCR is server-side.** `OCRService` (`src/services/ocrService.ts`) is a thin wrapper over
+  `SudojoClient.extractOcr()`; it holds no state, so there is no `init()` any more and the constructor
+  takes `(baseUrl, token = '')`. `src/index.ts` passes `SOLVER_API_URL` and `''` — sudojo_api serves
+  both the solver proxy and `/api/v1/ocr/extract`, and the OCR route is unauthenticated.
+- **Import sudojo_client from `@sudobility/sudojo_client/network`.** The package root also exports
+  React Query hooks, and the bot has no React.
 - **`SOLVER_API_URL` must point at sudojo_api.** Pointing it straight at sudojo_solver returns 404s,
-  because the solver serves `/api/solve`, not `/api/v1/solver/solve`.
+  because the solver serves `/api/solve`, not `/api/v1/solver/solve` — and it has no OCR route at all.
 - **"Apply" doesn't replay the stored hint.** It re-runs `solve()` on the same state and uses the
   solver's `board.user`. `SolverService.applyHint()` ignores its `_user` argument.
 - `validate()` maps any non-success response to `{ valid: false }`, which the user sees as "no unique

@@ -15,7 +15,7 @@ bun run dev          # Start with hot reload (port 3978)
 ## Features
 
 - Upload a photo of any Sudoku puzzle
-- Automatic OCR extraction via Tesseract (digits and pencilmarks)
+- Automatic OCR extraction server-side via sudojo_api (digits and pencilmarks)
 - Puzzle validation (unique solution check)
 - Step-by-step hints teaching solving techniques
 - Visual board rendering with highlighted cells
@@ -24,7 +24,8 @@ bun run dev          # Start with hot reload (port 3978)
 ## Usage
 
 1. Download [Bot Framework Emulator](https://github.com/Microsoft/BotFramework-Emulator/releases)
-2. Start sudojo_api (the bot calls its `/api/v1/solver/*` endpoints), then the bot: `bun run dev`
+2. Start sudojo_api (the bot calls its `/api/v1/solver/*` and `/api/v1/ocr/extract` endpoints), then
+   the bot: `bun run dev`
 3. Connect to `http://localhost:3978/api/messages` (leave App ID/password blank)
 
 ## Routes
@@ -42,8 +43,7 @@ bun run build        # TypeScript compilation
 bun run typecheck    # Type checking
 bun run lint         # ESLint
 bun run format       # Prettier (writes src/)
-bun test src/services src/cards src/state   # Unit tests (fast, offline)
-bun run test         # All tests, incl. slow OCR integration tests
+bun run test         # All tests (fast, offline)
 ```
 
 ## Docker
@@ -55,9 +55,9 @@ docker run -p 3978:3978 --env-file .env sudojo_bot
 
 ## Related Packages
 
-- `@sudobility/sudojo_ocr` -- OCR library for puzzle extraction
+- `@sudobility/sudojo_client` -- API client used for OCR extraction (`/api/v1/ocr/extract`)
 - `@sudobility/sudojo_types` -- Solver types for hint data
-- `sudojo_api` -- Backend whose `/api/v1/solver/*` endpoints (proxied to `sudojo_solver`) provide hints and validation
+- `sudojo_api` -- Backend whose `/api/v1/solver/*` endpoints (proxied to `sudojo_solver`) provide hints and validation, and whose `/api/v1/ocr/extract` endpoint reads boards from photos
 
 ## License
 

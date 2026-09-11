@@ -28,6 +28,7 @@ import { createPuzzleCard } from '../cards/puzzleCard.js';
 import type { SudokuConversationData } from '../state/conversationState.js';
 import { ImageService } from '../services/imageService.js';
 import { t } from '../i18n/index.js';
+import { getStepHeading } from '../cards/hintHeading.js';
 
 export const MAIN_DIALOG = 'mainDialog';
 const MAIN_WATERFALL = 'mainWaterfall';
@@ -623,6 +624,8 @@ export class MainDialog extends ComponentDialog {
 
     // Build hint text (use step.text as the explanation)
     const stepText = step.text || t('hint.followHighlighted');
+    // Short per-step heading ('' when the step has none; the technique is already in the first line)
+    const heading = getStepHeading(step);
     const stepProgress = t('hint.stepOf', { current: stepIndex + 1, total: totalSteps });
     const isLastStep = stepIndex === totalSteps - 1;
 
@@ -653,6 +656,16 @@ export class MainDialog extends ComponentDialog {
             size: 'Large',
             horizontalAlignment: 'Center',
           },
+          ...(heading
+            ? [
+                {
+                  type: 'TextBlock',
+                  text: heading,
+                  wrap: true,
+                  weight: 'Bolder',
+                },
+              ]
+            : []),
           {
             type: 'TextBlock',
             text: stepText,

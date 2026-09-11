@@ -5,6 +5,7 @@
 import { CardFactory, type Attachment } from 'botbuilder';
 import type { SolverHintStep, SolverHintCell } from '@sudobility/sudojo_types';
 import { t } from '../i18n/index.js';
+import { getStepHeading } from './hintHeading.js';
 
 /**
  * Format cells to highlight in the grid
@@ -60,6 +61,7 @@ function formatHintGrid(original: string, user: string, cells: SolverHintCell[])
 /**
  * Create an Adaptive Card showing a single hint step with grid visualization.
  * Highlights affected cells using bracket notation: [n]=place, (n)=remove, *n*=highlight.
+ * Shows the step's heading (see hintHeading.ts), falling back to `step.title`.
  * @param step - The solver hint step containing cells, title, and text
  * @param stepIndex - Zero-based index of the current step
  * @param totalSteps - Total number of steps in the hint
@@ -100,7 +102,8 @@ export function createHintStepCard(
     },
     {
       type: 'TextBlock',
-      text: step.title,
+      // Per-step heading; step.title (the technique name) when the step has none.
+      text: getStepHeading(step) || step.title,
       weight: 'Bolder',
       spacing: 'Medium',
       wrap: true,

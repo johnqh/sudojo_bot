@@ -1,0 +1,688 @@
+{
+  "fullHouse": {
+    "row": {
+      "scan": "Row {{value1}} has one empty cell",
+      "identify": "{{value1}} is the missing digit",
+      "describe": "Full House in the row",
+      "place": "Place {{value1}} at {{value2}}"
+    },
+    "column": {
+      "scan": "Column {{value1}} has one empty cell",
+      "identify": "{{value1}} is the missing digit",
+      "describe": "Full House in the column",
+      "place": "Place {{value1}} at {{value2}}"
+    },
+    "block": {
+      "scan": "Box {{value1}} has one empty cell",
+      "identify": "{{value1}} is the missing digit",
+      "describe": "Full House in the box",
+      "place": "Place {{value1}} at {{value2}}"
+    }
+  },
+  "nakedSingle": {
+    "scan": "Check the candidates in {{value1}}",
+    "identify": "Only {{value1}} remains",
+    "describe": "Naked Single in this cell",
+    "place": "Place {{value1}} at {{value2}}"
+  },
+  "hiddenSingle": {
+    "row": {
+      "scan": "Scan row {{value2}} for {{value1}}",
+      "identify": "Only one cell for {{value1}} in the row",
+      "describe": "Hidden Single in the row",
+      "place": "Place {{value1}} at {{value2}}"
+    },
+    "column": {
+      "scan": "Scan column {{value2}} for {{value1}}",
+      "identify": "Only one cell for {{value1}} in the column",
+      "describe": "Hidden Single in the column",
+      "place": "Place {{value1}} at {{value2}}"
+    },
+    "block": {
+      "scan": "Scan box {{value2}} for {{value1}}",
+      "identify": "Only one cell for {{value1}} in the box",
+      "describe": "Hidden Single in the box",
+      "place": "Place {{value1}} at {{value2}}"
+    }
+  },
+  "nakedPair": {
+    "row": {
+      "scan": "Scan row {{value1}} for a {{value2}} pair",
+      "identify": "Naked Pair at columns {{value1}} and {{value2}}",
+      "reason": "The pair claims {{value1}} for the row",
+      "highlight": "Removal targets in row {{value2}}",
+      "eliminate": "Remove {{value1}} from row {{value2}}"
+    },
+    "column": {
+      "scan": "Scan column {{value1}} for a {{value2}} pair",
+      "identify": "Naked Pair at rows {{value1}} and {{value2}}",
+      "reason": "The pair claims {{value1}} for the column",
+      "highlight": "Removal targets in column {{value2}}",
+      "eliminate": "Remove {{value1}} from column {{value2}}"
+    },
+    "block": {
+      "scan": "Scan box {{value1}} for a {{value2}} pair",
+      "identify": "Naked Pair at {{value1}} and {{value2}}",
+      "reason": "The pair claims {{value1}} for the box",
+      "highlight": "Removal targets in box {{value2}}",
+      "eliminate": "Remove {{value1}} from box {{value2}}"
+    }
+  },
+  "hiddenPair": {
+    "row": {
+      "scan": "Scan row {{value3}} for {{value1}} and {{value2}}",
+      "identify": "Two cells are reserved in the row",
+      "reason": "Hidden Pair of {{value1}} and {{value2}}",
+      "highlight": "Extra candidates in the pair cells",
+      "eliminate": "Keep only {{value1}} and {{value2}}"
+    },
+    "column": {
+      "scan": "Scan column {{value3}} for {{value1}} and {{value2}}",
+      "identify": "Two cells are reserved in the column",
+      "reason": "Hidden Pair of {{value1}} and {{value2}}",
+      "highlight": "Extra candidates in the pair cells",
+      "eliminate": "Keep only {{value1}} and {{value2}}"
+    },
+    "block": {
+      "scan": "Scan box {{value3}} for {{value1}} and {{value2}}",
+      "identify": "Two cells are reserved in the box",
+      "reason": "Hidden Pair of {{value1}} and {{value2}}",
+      "highlight": "Extra candidates in the pair cells",
+      "eliminate": "Keep only {{value1}} and {{value2}}"
+    }
+  },
+  "lockedCandidates": {
+    "rowPointing": {
+      "scan": "Scan box {{value2}} for {{value1}}",
+      "locate": "{{value1}} is confined to row {{value2}}",
+      "reason": "Box {{value1}} must place {{value2}} in row {{value4}}",
+      "highlight": "Other cells in row {{value1}} can't keep {{value2}}",
+      "eliminate": "Remove {{value1}} from the rest of row {{value2}}"
+    },
+    "rowClaiming": {
+      "scan": "Scan row {{value2}} for {{value1}}",
+      "locate": "{{value1}} is confined to box {{value2}}",
+      "reason": "Row {{value3}} must place {{value1}} in box {{value2}}",
+      "highlight": "Other cells in box {{value1}} can't keep {{value3}}",
+      "eliminate": "Remove {{value1}} from the rest of box {{value2}}"
+    },
+    "columnPointing": {
+      "scan": "Scan box {{value2}} for {{value1}}",
+      "locate": "{{value1}} is confined to column {{value2}}",
+      "reason": "Box {{value1}} must place {{value2}} in column {{value4}}",
+      "highlight": "Other cells in column {{value1}} can't keep {{value2}}",
+      "eliminate": "Remove {{value1}} from the rest of column {{value2}}"
+    },
+    "columnClaiming": {
+      "scan": "Scan column {{value2}} for {{value1}}",
+      "locate": "{{value1}} is confined to box {{value2}}",
+      "reason": "Column {{value3}} must place {{value1}} in box {{value2}}",
+      "highlight": "Other cells in box {{value1}} can't keep {{value3}}",
+      "eliminate": "Remove {{value1}} from the rest of box {{value2}}"
+    }
+  },
+  "fish": {
+    "row": {
+      "scan": "Scan base rows {{value2}} for {{value1}}",
+      "identify": "{{value2}} is confined to columns {{value4}}",
+      "describe": "The pattern forms a {{value1}}",
+      "highlight": "Extra {{value1}} candidates in columns {{value2}}",
+      "eliminate": "Remove {{value1}} from columns {{value2}}"
+    },
+    "column": {
+      "scan": "Scan base columns {{value2}} for {{value1}}",
+      "identify": "{{value2}} is confined to rows {{value4}}",
+      "describe": "The pattern forms a {{value1}}",
+      "highlight": "Extra {{value1}} candidates in rows {{value2}}",
+      "eliminate": "Remove {{value1}} from rows {{value2}}"
+    }
+  },
+  "finnedFish": {
+    "row": {
+      "scan": "Rows {{value2}} form a {{value3}} on {{value1}}",
+      "identifyFin": "The fin sits in box {{value1}}",
+      "reason": "Only box {{value1}} can lose {{value3}}",
+      "highlight": "Cells that see both fish and fin",
+      "eliminate": "Remove {{value1}} from the fin-affected cells"
+    },
+    "column": {
+      "scan": "Columns {{value2}} form a {{value3}} on {{value1}}",
+      "identifyFin": "The fin sits in box {{value1}}",
+      "reason": "Only box {{value1}} can lose {{value3}}",
+      "highlight": "Cells that see both fish and fin",
+      "eliminate": "Remove {{value1}} from the fin-affected cells"
+    }
+  },
+  "skyscraper": {
+    "row": {
+      "scan": "Scan rows {{value2}} and {{value3}} for {{value1}}",
+      "identify": "Two conjugate pairs on {{value1}}",
+      "connect": "The pairs meet in column {{value1}}",
+      "highlight": "{{value1}} or {{value2}} must be {{value3}}",
+      "eliminate": "Remove {{value1}} from cells seeing both ends"
+    },
+    "column": {
+      "scan": "Scan columns {{value2}} and {{value3}} for {{value1}}",
+      "identify": "Two conjugate pairs on {{value1}}",
+      "connect": "The pairs meet in row {{value1}}",
+      "highlight": "{{value1}} or {{value2}} must be {{value3}}",
+      "eliminate": "Remove {{value1}} from cells seeing both ends"
+    }
+  },
+  "twoStringKite": {
+    "scan": "Find two strong links for {{value1}}",
+    "identify": "Strings in row {{value1}} and column {{value2}}",
+    "connect": "The strings join in box {{value1}}",
+    "highlight": "Kite tails at {{value1}} and {{value2}}",
+    "eliminate": "Remove {{value1}} from cells seeing both tails"
+  },
+  "emptyRectangle": {
+    "row": {
+      "scan": "Scan box {{value2}} for {{value1}}",
+      "identify": "Empty Rectangle hinged at {{value3}}",
+      "connect": "Conjugate pair for {{value2}} in row {{value1}}",
+      "highlight": "{{value2}} sees both options for {{value1}}",
+      "eliminate": "Remove {{value1}} from {{value2}}"
+    },
+    "column": {
+      "scan": "Scan box {{value2}} for {{value1}}",
+      "identify": "Empty Rectangle hinged at {{value3}}",
+      "connect": "Conjugate pair for {{value2}} in column {{value1}}",
+      "highlight": "{{value2}} sees both options for {{value1}}",
+      "eliminate": "Remove {{value1}} from {{value2}}"
+    }
+  },
+  "crane": {
+    "scan": "Find two conjugate pairs on {{value1}}",
+    "identify": "Pairs in box {{value1}} and {{value2}}",
+    "connect": "The pairs connect through {{value1}}",
+    "highlight": "{{value1}} or {{value2}} must be {{value3}}",
+    "eliminate": "Remove {{value1}} from cells seeing both tails"
+  },
+  "simpleColoring": {
+    "wrap": {
+      "build": "Build the coloring chain for {{value1}}",
+      "explain": "Colors alternate along the chain",
+      "deduce": "{{value1}} and {{value2}} clash in one house",
+      "highlight": "This color is false everywhere",
+      "eliminate": "Remove {{value1}} from the false color"
+    },
+    "trap": {
+      "build": "Build the coloring chain for {{value1}}",
+      "explain": "Colors alternate along the chain",
+      "deduce": "Look for cells seeing both colors",
+      "highlight": "These cells always see a true {{value1}}",
+      "eliminate": "Remove {{value1}} from trapped cells"
+    }
+  },
+  "wWing": {
+    "scan": "Matching bivalue cells {{value1}} and {{value2}}",
+    "identify": "A link on {{value1}} joins the cells",
+    "connect": "Strong link at {{value1}}-{{value2}}",
+    "highlight": "One bivalue cell must be {{value1}}",
+    "eliminate": "Remove {{value1}} from common peers"
+  },
+  "remotePairs": {
+    "scan": "Find a bivalue chain on {{value1}} and {{value2}}",
+    "identify": "Chain from {{value2}} to {{value3}}",
+    "reason": "Odd-distance cells take opposite values",
+    "highlight": "Cells that see both chain ends",
+    "eliminate": "Remove {{value1}} and {{value2}} from common peers"
+  },
+  "uniqueRectangle": {
+    "type1": {
+      "scan": "Find a rectangle on {{value1}} and {{value2}}",
+      "identify": "Three corners hold only {{value1}} and {{value2}}",
+      "reason": "The fourth corner must break the pair",
+      "highlight": "Only {{value1}} has extra candidates",
+      "eliminate": "Remove {{value1}} and {{value2}} from {{value3}}"
+    },
+    "type2": {
+      "scan": "Find a rectangle on {{value1}} and {{value2}}",
+      "identify": "Roof cells share extra candidate {{value5}}",
+      "reason": "One roof cell must be {{value1}}",
+      "highlight": "Common peers of the roof cannot keep {{value2}}",
+      "eliminate": "Remove {{value1}} from cells seeing both roofs"
+    },
+    "type3": {
+      "scan": "Find a rectangle on {{value1}} and {{value2}}",
+      "identify": "Roof cells carry extra candidates",
+      "reason": "A pseudo-locked set forms in {{value2}}",
+      "highlight": "The locked set claims its digits in {{value2}}",
+      "eliminate": "Remove {{value1}} from the rest of {{value2}}"
+    },
+    "type4": {
+      "scan": "Find a rectangle on {{value1}} and {{value2}}",
+      "identify": "Roof cells share {{value3}}",
+      "reason": "{{value1}} is a conjugate pair in {{value2}}",
+      "eliminate": "Remove {{value2}} from both roof cells"
+    },
+    "type5": {
+      "scan": "Find a rectangle on {{value1}} and {{value2}}",
+      "identify": "Diagonal roof cells share extra {{value1}}",
+      "reason": "One diagonal roof cell must be {{value1}}",
+      "eliminate": "Remove {{value1}} from cells seeing both roofs",
+      "three": {
+        "identify": "Extra {{value1}} appears in three corners",
+        "reason": "One of the three corners must be {{value1}}",
+        "eliminate": "Remove {{value1}} from cells seeing all three"
+      }
+    }
+  },
+  "xyChain": {
+    "scan": "Found an XY-Chain of {{value1}} cells",
+    "describe": "How the XY-Chain links bivalue cells",
+    "deduce": "One endpoint must be {{value4}}",
+    "highlight": "Cells seeing both endpoints can't keep {{value1}}",
+    "eliminate": "Remove {{value1}} from common peers"
+  },
+  "xChain": {
+    "scan": "X-Chain of {{value2}} cells on digit {{value1}}",
+    "describe": "Strong and weak links alternate",
+    "deduce": "One endpoint must be {{value3}}",
+    "highlight": "Cells seeing both endpoints lose {{value1}}",
+    "eliminate": "Remove {{value1}} from {{value2}}"
+  },
+  "nYWing": {
+    "scan": "Pivot {{value2}} with a {{value3}}-cell wing",
+    "identify": "Wing cells form an ALS with the pivot",
+    "describe": "{{value1}}-Y-Wing, also called {{value2}}",
+    "eliminate": "Remove {{value2}} from common peers"
+  },
+  "bugPlusOne": {
+    "scan": "All cells bivalue except one",
+    "identify": "{{value1}} is the BUG+1 cell",
+    "reason": "Two candidates would make a BUG",
+    "place": "Place {{value2}} at {{value1}}"
+  },
+  "sueDeCoq": {
+    "rowBox": {
+      "scan": "Intersection of row {{value1}} and box {{value2}}",
+      "findLineHelper": "Helper set {{value1}} in row {{value2}}",
+      "findBoxHelper": "Helper set {{value1}} in box {{value2}}",
+      "highlight": "Extras outside the claimed candidates",
+      "eliminate": "Remove the extra candidates"
+    },
+    "columnBox": {
+      "scan": "Intersection of column {{value1}} and box {{value2}}",
+      "findLineHelper": "Helper set {{value1}} in column {{value2}}",
+      "findBoxHelper": "Helper set {{value1}} in box {{value2}}",
+      "highlight": "Extras outside the claimed candidates",
+      "eliminate": "Remove the extra candidates"
+    }
+  },
+  "hiddenTriple": {
+    "row": {
+      "scan": "Scan row {{value2}} for {{value1}}",
+      "identify": "Three cells are reserved in the row",
+      "reason": "Hidden Triple in those cells",
+      "highlight": "Extra candidates in the triple cells",
+      "eliminate": "Keep only the triple digits"
+    },
+    "column": {
+      "scan": "Scan column {{value2}} for {{value1}}",
+      "identify": "Three cells are reserved in the column",
+      "reason": "Hidden Triple in those cells",
+      "highlight": "Extra candidates in the triple cells",
+      "eliminate": "Keep only the triple digits"
+    },
+    "block": {
+      "scan": "Scan box {{value2}} for {{value1}}",
+      "identify": "Three cells are reserved in the box",
+      "reason": "Hidden Triple in those cells",
+      "highlight": "Extra candidates in the triple cells",
+      "eliminate": "Keep only the triple digits"
+    }
+  },
+  "hiddenQuad": {
+    "row": {
+      "scan": "Scan row {{value2}} for {{value1}}",
+      "identify": "Four cells are reserved in the row",
+      "reason": "Hidden Quad in those cells",
+      "highlight": "Extra candidates in the quad cells",
+      "eliminate": "Keep only the quad digits"
+    },
+    "column": {
+      "scan": "Scan column {{value2}} for {{value1}}",
+      "identify": "Four cells are reserved in the column",
+      "reason": "Hidden Quad in those cells",
+      "highlight": "Extra candidates in the quad cells",
+      "eliminate": "Keep only the quad digits"
+    },
+    "block": {
+      "scan": "Scan box {{value2}} for {{value1}}",
+      "identify": "Four cells are reserved in the box",
+      "reason": "Hidden Quad in those cells",
+      "highlight": "Extra candidates in the quad cells",
+      "eliminate": "Keep only the quad digits"
+    }
+  },
+  "nakedTriple": {
+    "row": {
+      "scan": "Scan row {{value2}} for a triple",
+      "identify": "Three cells hold only {{value2}}",
+      "reason": "The triple claims {{value1}} in this row",
+      "highlight": "Other cells in row {{value2}} are targets",
+      "eliminate": "Remove {{value1}} from the rest of row {{value2}}"
+    },
+    "column": {
+      "scan": "Scan column {{value2}} for a triple",
+      "identify": "Three cells hold only {{value2}}",
+      "reason": "The triple claims {{value1}} in this column",
+      "highlight": "Other cells in column {{value2}} are targets",
+      "eliminate": "Remove {{value1}} from the rest of column {{value2}}"
+    },
+    "block": {
+      "scan": "Scan box {{value2}} for a triple",
+      "identify": "Three cells hold only {{value2}}",
+      "reason": "The triple claims {{value1}} in this box",
+      "highlight": "Other cells in box {{value2}} are targets",
+      "eliminate": "Remove {{value1}} from the rest of box {{value2}}"
+    }
+  },
+  "nakedQuad": {
+    "row": {
+      "scan": "Scan row {{value2}} for a quad",
+      "identify": "Four cells hold only {{value2}}",
+      "reason": "Digits {{value1}} are locked in the quad",
+      "highlight": "Other cells in row {{value2}} hold {{value1}}",
+      "eliminate": "Remove {{value1}} from row {{value2}}"
+    },
+    "column": {
+      "scan": "Scan column {{value2}} for a quad",
+      "identify": "Four cells hold only {{value2}}",
+      "reason": "Digits {{value1}} are locked in the quad",
+      "highlight": "Other cells in column {{value2}} hold {{value1}}",
+      "eliminate": "Remove {{value1}} from column {{value2}}"
+    },
+    "block": {
+      "scan": "Scan box {{value2}} for a quad",
+      "identify": "Four cells hold only {{value2}}",
+      "reason": "Digits {{value1}} are locked in the quad",
+      "highlight": "Other cells in box {{value2}} hold {{value1}}",
+      "eliminate": "Remove {{value1}} from box {{value2}}"
+    }
+  },
+  "alsXz": {
+    "scan": "Find two Almost Locked Sets",
+    "identify": "Restricted common candidate {{value1}}",
+    "reason": "Only one ALS can hold the shared digit",
+    "highlight": "Cells that see every {{value2}} in both ALSs",
+    "eliminate": "Remove {{value3}} from cells seeing both ALSs"
+  },
+  "xyWing": {
+    "scan": "Pivot {{value1}} with two wings",
+    "identify": "Wings share the elimination digit",
+    "describe": "This is an XY-Wing",
+    "eliminate": "Remove {{value1}} from {{value2}}"
+  },
+  "xyzWing": {
+    "scan": "Find the XYZ-Wing pivot {{value1}}",
+    "identify": "Wing cells {{value1}} fit within XYZ",
+    "describe": "XYZ-Wing pattern",
+    "highlight": "Cells seeing all three lose {{value1}}",
+    "eliminate": "Remove {{value1}} from common peers"
+  },
+  "wxyzWing": {
+    "scan": "Find the pivot cell {{value1}}",
+    "identify": "Wing cells form an ALS with the pivot",
+    "describe": "Why the WXYZ-Wing works",
+    "eliminate": "Remove {{value1}} from cells seeing all four"
+  },
+  "als": {
+    "scan": "Two ALSs: {{value1}} and {{value2}}",
+    "describe": "What an Almost Locked Set is",
+    "identify": "Restricted common candidate {{value1}}",
+    "highlight": "These cells cannot keep {{value1}}",
+    "eliminate": "Remove {{value2}} from {{value3}}"
+  },
+  "alsChain": {
+    "start": "Start with the first ALS",
+    "scan": "ALS Chain of {{value1}} sets",
+    "describe": "Links use restricted commons",
+    "reason": "The chain forces the removal",
+    "eliminate": "Eliminate {{value1}} from {{value2}}"
+  },
+  "xCycles": {
+    "type1": {
+      "build": "Build an X-Cycle on digit {{value1}}",
+      "describe": "Type 1 nice loop of {{value1}} cells",
+      "deduce": "One end of each strong link is true",
+      "highlight": "Cells seeing both ends lose {{value1}}",
+      "eliminate": "Remove {{value1}} from {{value2}}"
+    },
+    "type2": {
+      "build": "Build an X-Cycle on digit {{value1}}",
+      "explain": "What makes a strong link",
+      "deduce": "Type 2: strong links meet at {{value2}}",
+      "highlight": "The candidate at {{value1}} is contradictory",
+      "eliminate": "Remove {{value1}} from {{value2}}",
+      "forced": "Placement forced at {{value1}}",
+      "place": "Place {{value1}} at {{value2}}"
+    },
+    "type3": {
+      "build": "Build an X-Cycle on digit {{value1}}",
+      "explain": "What makes a weak link",
+      "deduce": "Type 3: weak links meet at {{value2}}",
+      "highlight": "Placement forced at {{value1}}",
+      "eliminate": "Place {{value1}} at {{value2}}",
+      "contradiction": "The candidate at {{value1}} is false",
+      "remove": "Remove {{value1}} from {{value2}}"
+    }
+  },
+  "forcingChains": {
+    "setup": "Start from bivalue cell {{value1}}",
+    "assume": "Assume {{value1}} is {{value2}}",
+    "contradict": "The assumption leads to a contradiction",
+    "conclude": "{{value2}} must be {{value3}}",
+    "commonForced": {
+      "setup": "Start from bivalue cell {{value1}}",
+      "assumeFirst": "First branch: {{value1}} is {{value2}}",
+      "assumeSecond": "Second branch: {{value1}} is {{value2}}",
+      "conclude": "Both branches force {{value1}} to be {{value2}}"
+    },
+    "commonElim": {
+      "setup": "Start from bivalue cell {{value1}}",
+      "assumeFirst": "First branch: {{value1}} is {{value2}}",
+      "assumeSecond": "Second branch: {{value1}} is {{value2}}",
+      "conclude": "Remove the shared eliminations from {{value1}}"
+    }
+  },
+  "regionForcingChain": {
+    "setup": "Positions for {{value1}} in {{value2}}",
+    "assume": "Assume {{value1}} at {{value2}}",
+    "contradict": "This position is impossible",
+    "conclude": "{{value1}} cannot be at {{value2}}",
+    "commonForced": {
+      "tryPositions": "Try each position for {{value1}}",
+      "converge": "All positions force {{value1}} to {{value2}}",
+      "conclude": "{{value1}} must be {{value2}}"
+    },
+    "commonElim": {
+      "tryPositions": "Try each position for {{value1}}",
+      "converge": "All positions give the same eliminations",
+      "conclude": "Eliminate the common candidates"
+    }
+  },
+  "forcingNet": {
+    "setup": "Branch on every candidate of {{value1}}",
+    "assume": "Assume {{value1}} is {{value2}}",
+    "contradict": "This branch leads to a contradiction",
+    "conclude": "Eliminate {{value1}} from {{value2}}",
+    "commonForced": {
+      "tryAll": "Follow all {{value1}} branches",
+      "converge": "All branches force the same value",
+      "conclude": "{{value1}} must be {{value2}}"
+    },
+    "commonElim": {
+      "tryAll": "Follow all {{value1}} branches",
+      "converge": "All branches remove the same candidates",
+      "conclude": "Remove the shared eliminations"
+    }
+  },
+  "regionForcingNet": {
+    "setup": "Consider {{value1}} in {{value2}}",
+    "assume": "Assume {{value1}} at {{value2}}",
+    "contradict": "The assumption fails",
+    "conclude": "{{value1}} cannot be at {{value2}}",
+    "commonForced": {
+      "tryPositions": "Try each spot for {{value2}} in {{value3}}",
+      "converge": "All branches force {{value1}} to {{value2}}",
+      "conclude": "Place {{value2}} at {{value1}}"
+    },
+    "commonElim": {
+      "tryPositions": "Try each spot for {{value2}} in {{value3}}",
+      "converge": "All branches share the eliminations",
+      "conclude": "Eliminate the common candidates"
+    }
+  },
+  "aic": {
+    "scan": "AIC from {{value2}} to {{value3}}",
+    "describe": "How an AIC chain works",
+    "deduce": "One endpoint must hold {{value3}}",
+    "highlight": "Cells seeing both ends lose {{value1}}",
+    "eliminate": "Remove {{value1}} from common peers",
+    "type2": {
+      "scan": "AIC loop returning to {{value2}}",
+      "describe": "An AIC that starts and ends at one cell",
+      "deduce": "{{value1}} must be {{value2}} or {{value3}}",
+      "highlight": "Extra candidates in {{value1}}",
+      "eliminate": "Remove other candidates from {{value1}}"
+    },
+    "type3": {
+      "scan": "Discontinuous AIC loop at {{value2}}",
+      "describe": "How a discontinuous loop works",
+      "deduce": "Contradiction at {{value1}}",
+      "highlight": "{{value1}} in {{value2}} is contradictory",
+      "eliminate": "Remove {{value1}} from {{value2}}",
+      "forced": "Strong links on both sides of {{value1}}",
+      "placement": "{{value1}} is forced into {{value2}}",
+      "place": "Place {{value1}} at {{value2}}"
+    }
+  },
+  "medusa": {
+    "wrap": {
+      "build": "Build the 3D Medusa coloring network",
+      "explain": "How colors spread in 3D Medusa",
+      "deduce": "Color clash on {{value1}} at {{value2}} and {{value3}}",
+      "highlight": "Candidates of the false color",
+      "eliminate": "Remove every false-color candidate"
+    },
+    "trap": {
+      "build": "Build the 3D Medusa coloring network",
+      "explain": "One color is true, the other false",
+      "deduce": "{{value1}} at {{value2}} sees both colors",
+      "highlight": "{{value1}} at {{value2}} is trapped",
+      "eliminate": "Remove {{value1}} from {{value2}}"
+    },
+    "sameCell": {
+      "build": "Build the 3D Medusa coloring network",
+      "identify": "Cell {{value1}} holds one color twice",
+      "reason": "That color is false everywhere",
+      "highlight": "Candidates of the false color",
+      "eliminate": "Remove every false-color candidate"
+    },
+    "twoColors": {
+      "build": "Build the 3D Medusa coloring network",
+      "identify": "Cell {{value1}} holds both colors",
+      "reason": "One colored candidate must be true",
+      "highlight": "Uncolored candidates in {{value1}} are false",
+      "eliminate": "Remove uncolored candidates from {{value1}}"
+    }
+  },
+  "avoidableRectangle": {
+    "scan": "Rectangle with three corners determined",
+    "identify": "{{value2}} at {{value1}} would allow two solutions",
+    "reason": "Why the rectangle must be avoided",
+    "highlight": "{{value1}} at {{value2}} is the target",
+    "eliminate": "Remove {{value1}} from {{value2}}",
+    "type2": {
+      "scan": "Rectangle with two corners determined",
+      "identify": "Both open corners share extra {{value5}}",
+      "reason": "One open corner must be {{value1}}",
+      "highlight": "Cells that see both open corners",
+      "eliminate": "Remove {{value1}} from these cells"
+    },
+    "type3": {
+      "scan": "Rectangle with two solved corners",
+      "identify": "Open corners hold extras {{value3}}",
+      "reason": "Extras form a locked set with {{value1}}",
+      "highlight": "Elimination targets in {{value2}}",
+      "eliminate": "Remove {{value1}} from the rest of {{value2}}"
+    },
+    "type4": {
+      "scan": "Rectangle with two solved corners",
+      "identify": "Both open corners lie in {{value3}}",
+      "reason": "Conjugate pair on {{value1}} in {{value2}}",
+      "highlight": "{{value2}} conflicts with locked {{value1}}",
+      "eliminate": "Remove {{value1}} from these cells"
+    }
+  },
+  "hiddenUniqueRectangle": {
+    "scan": "Rectangle with {{value5}} and {{value6}}",
+    "identify": "Bivalue floor cells {{value1}} and {{value2}}",
+    "reason": "{{value1}} is hidden in the roof house",
+    "highlight": "{{value1}} is the removable roof candidate",
+    "eliminate": "Remove {{value1}} from the roof cells"
+  },
+  "firework": {
+    "scan": "Firework pattern pivoting on {{value1}}",
+    "identify": "Digits {{value1}} and {{value5}} are confined",
+    "reason": "Either {{value1}} is {{value2}} or {{value5}} fills both",
+    "highlight": "Cells seeing the Firework lose {{value1}}",
+    "eliminate": "Remove {{value1}} from {{value2}}"
+  },
+  "deathBlossom": {
+    "scan": "Death Blossom stem at {{value1}}",
+    "petalStep": "Petal {{value1}} links via {{value2}}",
+    "highlight": "{{value1}} appears in every petal",
+    "eliminate": "Remove {{value1}} from {{value2}}"
+  },
+  "frankenFish": {
+    "scan": "Found a {{value1}} on digit {{value2}}",
+    "identify": "{{value2}} is confined to the cover set",
+    "reason": "Cover-only {{value1}} candidates can be removed",
+    "highlight": "Cover candidates outside the base set",
+    "eliminate": "Remove {{value1}} from {{value2}}"
+  },
+  "groupedXCycles": {
+    "type1": {
+      "scan": "Grouped X-Cycle on {{value1}}",
+      "identify": "Loop of {{value1}} grouped nodes",
+      "deduce": "Peers of both link ends lose the digit",
+      "highlight": "These cells cannot keep {{value1}}",
+      "eliminate": "Remove {{value1}} from {{value2}}"
+    },
+    "type2": {
+      "scan": "Grouped X-Cycle on {{value1}}",
+      "identify": "Contradiction at one group",
+      "deduce": "Group {{value2}} is contradicted",
+      "highlight": "{{value1}} is forced out of these cells",
+      "eliminate": "Remove {{value1}} from {{value2}}",
+      "weakLinksMeet": "Two weak links meet at one group"
+    },
+    "type3": {
+      "scan": "Grouped X-Cycle on {{value1}}",
+      "identify": "This group must contain the digit",
+      "deduce": "Group {{value2}} is determined",
+      "highlight": "{{value1}} must be in group {{value2}}",
+      "eliminate": "Apply the result for group {{value1}}",
+      "strongLinksMeet": "Two strong links meet at one group"
+    }
+  },
+  "conflict": {
+    "digit": {
+      "rowOnly": "{{value1}} is blocked from {{value2}} by the row",
+      "columnOnly": "{{value1}} is blocked from {{value2}} by the column",
+      "boxOnly": "{{value1}} is blocked from {{value2}} by the box",
+      "rowAndColumn": "{{value1}} is blocked from {{value2}} by row and column",
+      "rowAndBox": "{{value1}} is blocked from {{value2}} by row and box",
+      "columnAndBox": "{{value1}} is blocked from {{value2}} by column and box",
+      "rowColumnAndBox": "{{value1}} is blocked from {{value2}} by row, column and box"
+    },
+    "position": {
+      "alreadyFilled": "{{value1}} is already filled",
+      "notCandidate": "{{value1}} was already removed from {{value2}}"
+    }
+  }
+}

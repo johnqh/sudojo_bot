@@ -1,20 +1,14 @@
 /**
  * OCR Service for extracting Sudoku puzzles from images
- * Wraps @sudobility/sudojo_ocr for use in the bot
+ *
+ * OCR runs server-side: this calls sudojo_api's POST /api/v1/ocr/extract
+ * (which runs the sudojo_ocr_ml model service and falls back to its own
+ * Tesseract pipeline) through @sudobility/sudojo_client. Nothing is
+ * recognized locally, so the bot bundles no OCR engine or model file.
  */
 
-import { extractSudokuFromImage } from '@sudobility/sudojo_ocr';
-import { createNodeAdapter } from '@sudobility/sudojo_ocr/node';
-import type {
-  CanvasAdapter,
-  OCRResult,
-  OCRProgress,
-  TesseractModule,
-} from '@sudobility/sudojo_ocr';
-import Tesseract from 'tesseract.js';
-
-// Cast Tesseract to our minimal interface for cross-version compatibility
-const tesseractModule = Tesseract as unknown as TesseractModule;
+import { SudojoClient } from '@sudobility/sudojo_client/network';
+import { FetchNetworkClient } from './networkClient.js';
 
 export interface OCRExtractResult {
   /** 81-char puzzle string (0 = empty) */
@@ -30,67 +24,47 @@ export interface OCRExtractResult {
 }
 
 /**
- * OCR service for extracting Sudoku puzzles from images.
- * Wraps @sudobility/sudojo_ocr with Node.js canvas adapter.
- * Lazy-initializes the canvas adapter on first use.
+ * OCR service backed by the sudojo_api OCR endpoint.
+ * Stateless: every extraction is a single HTTP request.
  */
 export class OCRService {
-  private adapter: CanvasAdapter | null = null;
-  private initPromise: Promise<void> | null = null;
+  private client: SudojoClient;
+  private token: string;
 
   /**
-   * Initialize the OCR service (loads canvas adapter)
+   * @param baseUrl - Base URL of sudojo_api (the same value the solver uses)
+   * @param token - Auth token; the OCR endpoint is unauthenticated, so '' is fine
    */
-  async init(): Promise<void> {
-    if (this.adapter) return;
-    if (this.initPromise) {
-      await this.initPromise;
-      return;
-    }
-
-    this.initPromise = (async () => {
-      this.adapter = await createNodeAdapter();
-    })();
-
-    await this.initPromise;
+  constructor(baseUrl: string, token: string = '') {
+    this.client = new SudojoClient(new FetchNetworkClient(), baseUrl.replace(/\/$/, ''));
+    this.token = token;
   }
 
   /**
    * Extract a Sudoku puzzle from an image buffer
    * @param imageBuffer - Image data as Buffer
-   * @param onProgress - Optional progress callback
    * @returns Extracted puzzle data
+   * @throws when the request fails or the API reports an error
    */
-  async extractPuzzle(
-    imageBuffer: Buffer,
-    onProgress?: (progress: OCRProgress) => void
-  ): Promise<OCRExtractResult> {
-    await this.init();
-
-    if (!this.adapter) {
-      throw new Error('OCR adapter not initialized');
+  async extractPuzzle(imageBuffer: Buffer): Promise<OCRExtractResult> {
+    if (!imageBuffer || imageBuffer.length === 0) {
+      throw new Error('OCR failed: empty image');
     }
 
-    const result: OCRResult = await extractSudokuFromImage(
-      this.adapter,
-      imageBuffer,
-      tesseractModule,
-      {
-        skipBoardDetection: false,
-        preprocess: true,
-        minConfidence: 1,
-        cellMargin: 0.03,
-        recognizePencilmarks: true,
-      },
-      onProgress
-    );
+    const response = await this.client.extractOcr(this.token, imageBuffer.toString('base64'));
+
+    if (!response.success || !response.data) {
+      throw new Error(response.error || 'OCR extraction failed');
+    }
+
+    const { board, confidence, digitCount } = response.data;
 
     return {
-      puzzle: result.board.original,
-      confidence: result.confidence,
-      digitCount: result.digitCount,
-      pencilmarks: result.board.pencilmark.numbers,
-      autopencil: result.board.pencilmark.autopencil,
+      puzzle: board.original,
+      confidence,
+      digitCount,
+      pencilmarks: board.pencilmark?.numbers ?? '',
+      autopencil: board.pencilmark?.autopencil ?? false,
     };
   }
 
