@@ -6,7 +6,7 @@
       "name": "sudojo_bot",
       "dependencies": {
         "@napi-rs/canvas": "^0.1.68",
-        "@sudobility/sudojo_client": "^0.0.154",
+        "@sudobility/sudojo_client": "^0.0.155",
         "@sudobility/sudojo_types": "^1.2.68",
         "@sudobility/types": "^1.9.67",
         "botbuilder": "^4.23.1",
@@ -121,7 +121,7 @@
 
     "@sudobility/di": ["@sudobility/di@1.5.65", "", { "peerDependencies": { "@notifee/react-native": ">=7.0.0", "@react-native-async-storage/async-storage": ">=1.19.0", "@react-native-community/netinfo": ">=9.0.0", "@react-native-firebase/analytics": ">=18.0.0", "@react-native-firebase/app": ">=18.0.0", "@react-native-firebase/messaging": ">=18.0.0", "@react-native-firebase/remote-config": ">=18.0.0", "@sudobility/types": "^1.9.67", "firebase": ">=11.0.0", "react": ">=18.0.0", "react-native": ">=0.70.0" }, "optionalPeers": ["@notifee/react-native", "@react-native-async-storage/async-storage", "@react-native-community/netinfo", "@react-native-firebase/analytics", "@react-native-firebase/app", "@react-native-firebase/messaging", "@react-native-firebase/remote-config", "firebase", "react-native"] }, "sha512-8PLcAsvv+CV3T1TxCJECgXJQQmftpLh22VonZkQSkHJHIiMWYmStOxY9es54HLZm7W0eRphmdSe7qjWBxcT+sg=="],
 
-    "@sudobility/sudojo_client": ["@sudobility/sudojo_client@0.0.154", "", { "dependencies": { "@sudobility/sudojo_types": "^1.2.61" }, "peerDependencies": { "@sudobility/di": "^1.5.65", "@sudobility/types": "^1.9.67", "@tanstack/react-query": ">=5.0.0", "react": ">=18.0.0" } }, "sha512-yCtF/ob34NQA0xmWUCtwdS578DrXCSt74W6CVhJVshtY1ECCdNXoPXEHKAbpDpRXlTEoGcK5qU91HDXaRXEOHQ=="],
+    "@sudobility/sudojo_client": ["@sudobility/sudojo_client@0.0.155", "", { "dependencies": { "@sudobility/sudojo_types": "^1.2.61" }, "peerDependencies": { "@sudobility/di": "^1.5.65", "@sudobility/types": "^1.9.67", "@tanstack/react-query": ">=5.0.0", "react": ">=18.0.0" } }, "sha512-N1zQSwupsfPJg7fd2O75WFEd4VD1nIVtwlG6z77x27IZzLyefTOSwKhRaqwGzgz1TfHVpkK9MRoek0saAbw3Xg=="],
 
     "@sudobility/sudojo_types": ["@sudobility/sudojo_types@1.2.68", "", { "peerDependencies": { "@sudobility/types": "^1.9.67" } }, "sha512-mrsy1oted91DxBeSJ9QsIAli61ttlHC/tgcZ76EKiFy/cRLS+WpuLb/elwroh6cHMHOo3ggv3HhYGYTfGCBpQA=="],
 
