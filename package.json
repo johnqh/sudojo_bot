@@ -1,6 +1,6 @@
 {
   "name": "sudojo_bot",
-  "version": "1.0.52",
+  "version": "1.0.53",
   "description": "Microsoft Bot Framework bot for Sudoku hints",
   "main": "dist/index.js",
   "type": "module",
@@ -14,14 +14,14 @@
     "typecheck": "tsc --noEmit",
     "lint": "eslint src",
     "format": "prettier --write src",
-    "test": "bun test",
+    "test:unit": "bun test",
     "test:watch": "bun test --watch",
     "sync:hint-headings": "bun scripts/sync-hint-headings.cjs"
   },
   "dependencies": {
     "@napi-rs/canvas": "^0.1.68",
     "@sudobility/sudojo_client": "^0.0.155",
-    "@sudobility/sudojo_types": "^1.2.68",
+    "@sudobility/sudojo_types": "^1.2.70",
     "@sudobility/types": "^1.9.67",
     "botbuilder": "^4.23.1",
     "botbuilder-dialogs": "^4.23.1",
