@@ -51,10 +51,7 @@ export class OCRService {
       throw new Error('OCR failed: empty image');
     }
 
-    // Images arrive as chat attachments, so the whole-board model is preferred.
-    const response = await this.client.extractOcr(this.token, imageBuffer.toString('base64'), {
-      source: 'library',
-    });
+    const response = await this.client.extractOcr(this.token, imageBuffer.toString('base64'));
 
     if (!response.success || !response.data) {
       throw new Error(response.error || 'OCR extraction failed');
