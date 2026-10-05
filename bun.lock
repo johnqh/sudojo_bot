@@ -6,8 +6,8 @@
       "name": "sudojo_bot",
       "dependencies": {
         "@napi-rs/canvas": "^0.1.68",
-        "@sudobility/sudojo_client": "^0.0.160",
-        "@sudobility/sudojo_types": "^1.2.71",
+        "@sudobility/sudojo_client": "^0.0.162",
+        "@sudobility/sudojo_types": "^1.2.72",
         "@sudobility/types": "^1.9.68",
         "botbuilder": "^4.23.1",
         "botbuilder-dialogs": "^4.23.1",
@@ -121,9 +121,9 @@
 
     "@sudobility/di": ["@sudobility/di@1.5.65", "", { "peerDependencies": { "@notifee/react-native": ">=7.0.0", "@react-native-async-storage/async-storage": ">=1.19.0", "@react-native-community/netinfo": ">=9.0.0", "@react-native-firebase/analytics": ">=18.0.0", "@react-native-firebase/app": ">=18.0.0", "@react-native-firebase/messaging": ">=18.0.0", "@react-native-firebase/remote-config": ">=18.0.0", "@sudobility/types": "^1.9.67", "firebase": ">=11.0.0", "react": ">=18.0.0", "react-native": ">=0.70.0" }, "optionalPeers": ["@notifee/react-native", "@react-native-async-storage/async-storage", "@react-native-community/netinfo", "@react-native-firebase/analytics", "@react-native-firebase/app", "@react-native-firebase/messaging", "@react-native-firebase/remote-config", "firebase", "react-native"] }, "sha512-8PLcAsvv+CV3T1TxCJECgXJQQmftpLh22VonZkQSkHJHIiMWYmStOxY9es54HLZm7W0eRphmdSe7qjWBxcT+sg=="],
 
-    "@sudobility/sudojo_client": ["@sudobility/sudojo_client@0.0.160", "", { "dependencies": { "@sudobility/sudojo_types": "^1.2.71" }, "peerDependencies": { "@sudobility/di": "^1.5.68", "@sudobility/types": "^1.9.68", "@tanstack/react-query": ">=5.0.0", "react": ">=18.0.0" } }, "sha512-XTIssYPSgv1OTckEjWvpt/JxkRLSGLFd5MRPOfgzzmNl4sfXj7TzkJW+oAnCtdn/IZwcHfhkq6mG1sM5o5gkXw=="],
+    "@sudobility/sudojo_client": ["@sudobility/sudojo_client@0.0.162", "", { "dependencies": { "@sudobility/sudojo_types": "^1.2.72" }, "peerDependencies": { "@sudobility/di": "^1.5.68", "@sudobility/types": "^1.9.68", "@tanstack/react-query": ">=5.0.0", "react": ">=18.0.0" } }, "sha512-Qj/WMq7a+uaKw42iOZRH57gNxQuhc8F7wVTv6g5dADHwSQQT7p8a+ZX3BStxYHPzxjL/Jsmxrnikbel6/o99gA=="],
 
-    "@sudobility/sudojo_types": ["@sudobility/sudojo_types@1.2.71", "", { "peerDependencies": { "@sudobility/types": "^1.9.68" } }, "sha512-rEWS1b+O3oPdvBJstaoCTNpF9JxqbEEqOVXHSwtRri52hUXboEI/nxoFT0Q008wH5wulrKhpud/aq9S42CmBwQ=="],
+    "@sudobility/sudojo_types": ["@sudobility/sudojo_types@1.2.72", "", { "peerDependencies": { "@sudobility/types": "^1.9.68" } }, "sha512-boM+7R/nTuK2c1//hgpv5Pnqfs5hrJ1vz/C45mkcHN4XXGmOiKT0YP22mvxxsUbQ/Lxr39HXQo4su3qDgeppXg=="],
 
     "@sudobility/types": ["@sudobility/types@1.9.68", "", {}, "sha512-4LL5+UfcqQcc0PKKR/z/PqS6j9DQPVkkjL+3oOW+Bwx0TAu1SVKAlPhlt/9ruNMW+abcHuZoFvbOVD5gdYBSGw=="],
 
